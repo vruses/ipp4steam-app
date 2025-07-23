@@ -1,4 +1,12 @@
 {
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      // 配备shadcn的配置文件components.json使用的别名
+      "@renderer/*": ["./src/renderer/src/*"]
+    }
+  },
   "files": [],
   "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.web.json" }]
 }
