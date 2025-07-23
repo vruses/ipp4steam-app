@@ -5,7 +5,7 @@ export const containerClass = 'w-full h-full'
 </script>
 
 <script setup lang="ts">
-import AppSidebar from '@renderer/components/AppSidebar.vue'
+import AppSidebar from '@renderer/components/sidebar/AppSidebar.vue'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,6 +16,7 @@ import {
 } from '@renderer/components/ui/breadcrumb'
 import { Separator } from '@renderer/components/ui/separator'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@renderer/components/ui/sidebar'
+import DataTable from '@renderer/components/users/DataTable.vue'
 </script>
 
 <template>
@@ -47,6 +48,9 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@renderer/compone
           <div class="aspect-video rounded-xl bg-muted/50" />
           <div class="aspect-video rounded-xl bg-muted/50" />
         </div>
+
+        <DataTable></DataTable>
+
         <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
       </div>
     </SidebarInset>
