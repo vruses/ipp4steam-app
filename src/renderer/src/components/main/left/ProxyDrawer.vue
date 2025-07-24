@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive, toRaw } from 'vue'
 import { Button } from '@renderer/components/ui/button'
 import {
   Drawer,
@@ -14,47 +14,40 @@ import {
 import { Input } from '@renderer/components/ui/input'
 import { Label } from '@renderer/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@renderer/components/ui/radio-group'
+import { proxySchema, ProxyForm } from '@renderer/types/proxy'
+import { cloneDeep } from 'lodash-es'
 
 // 表单数据
-const proxyLink = ref('')
-const targetLink = ref('')
-const proxyConfigName = ref('')
-// get用于请求价格列表，post用于创建订单
-const requestType = ref('get')
-const postFormData = ref('')
+const proxyForm = reactive<ProxyForm>({
+  proxyLink: '',
+  targetLink: '',
+  proxyConfigName: '',
+  // get用于请求价格列表，post用于创建订单
+  requestType: 'get'
+})
 
-// Carousel API ref
-const carouselApi = ref()
-
-// 监听 requestType 变化，如果选择 POST 则切换到第二个表单
+// 监听 requestType 变化
 const handleRequestTypeChange = (value: string): void => {
-  requestType.value = value
-}
-
-// 提交表单
-const handleSubmit = (): void => {
-  const formData = {
-    proxyLink: proxyLink.value,
-    targetLink: targetLink.value,
-    proxyConfigName: proxyConfigName.value,
-    requestType: requestType.value,
-    postFormData: requestType.value === 'post' ? postFormData.value : null
+  if (value === 'get' || value === 'post') {
+    proxyForm.requestType = value
   }
-
-  console.log('提交数据:', formData)
-  // 这里可以 emit 事件给父组件
-  // emit('add-proxy', formData)
 }
+
+const emit = defineEmits<{ (e: 'add-proxy', value: ProxyForm): void }>()
 
 // 重置表单
 const resetForm = (): void => {
-  proxyLink.value = ''
-  targetLink.value = ''
-  proxyConfigName.value = ''
-  requestType.value = 'get'
-  postFormData.value = ''
-  if (carouselApi.value) {
-    carouselApi.value.scrollTo(0)
+  proxyForm.proxyLink = ''
+  proxyForm.targetLink = ''
+  proxyForm.proxyConfigName = ''
+  proxyForm.requestType = 'get'
+}
+// 提交表单
+const handleSubmit = (): void => {
+  // 验证表单
+  if (proxySchema.safeParse(toRaw(proxyForm)).success) {
+    emit('add-proxy', cloneDeep(toRaw(proxyForm)))
+    resetForm()
   }
 }
 </script>
@@ -76,26 +69,35 @@ const resetForm = (): void => {
             <!-- 代理配置名 -->
             <div class="space-y-2">
               <Label for="config-name">代理配置名</Label>
-              <Input id="config-name" v-model="proxyConfigName" placeholder="输入配置名称..." />
+              <Input
+                id="config-name"
+                v-model="proxyForm.proxyConfigName"
+                placeholder="输入配置名称..."
+              />
             </div>
 
             <!-- 代理链接 -->
             <div class="space-y-2">
               <Label for="proxy-link">代理链接</Label>
-              <Input id="proxy-link" v-model="proxyLink" placeholder="输入代理链接..." type="url" />
+              <Input
+                id="proxy-link"
+                v-model="proxyForm.proxyLink"
+                placeholder="输入代理链接..."
+                type="url"
+              />
             </div>
 
             <!-- 目标拦截 -->
             <div class="space-y-2">
               <Label for="target-link">目标链接</Label>
-              <Input id="target-link" v-model="targetLink" placeholder="输入目标链接.." />
+              <Input id="target-link" v-model="proxyForm.targetLink" placeholder="输入目标链接.." />
             </div>
 
             <!-- 请求类型选择 -->
             <div class="space-y-3">
               <Label>目标链接类型</Label>
               <RadioGroup
-                :model-value="requestType"
+                :model-value="proxyForm.requestType"
                 class="flex flex-row space-x-6"
                 @update:model-value="handleRequestTypeChange"
               >
@@ -112,7 +114,9 @@ const resetForm = (): void => {
           </div>
         </div>
         <DrawerFooter>
-          <Button @click="handleSubmit">提交</Button>
+          <DrawerClose as-child>
+            <Button @click="handleSubmit">提交</Button>
+          </DrawerClose>
           <DrawerClose as-child>
             <Button variant="outline" @click="resetForm">取消</Button>
           </DrawerClose>

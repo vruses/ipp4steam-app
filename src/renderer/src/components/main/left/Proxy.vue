@@ -1,15 +1,6 @@
 <script setup lang="ts">
 import { Button } from '@renderer/components/ui/button'
-import { toTypedSchema } from '@vee-validate/zod'
-import { z } from 'zod'
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@renderer/components/ui/form'
+
 import {
   TagsInput,
   TagsInputInput,
@@ -18,63 +9,84 @@ import {
   TagsInputItemText
 } from '@renderer/components/ui/tags-input'
 import ProxyDrawer from './ProxyDrawer.vue'
-import { useForm } from 'vee-validate'
+import type { ProxyForm } from '@renderer/types/proxy'
+import { reactive } from 'vue'
 
-const formSchema = toTypedSchema(
-  z.object({
-    proxyname: z.array(z.string()).min(1).max(3)
-  })
-)
-useForm({
-  validationSchema: formSchema,
-  initialValues: {
-    proxyname: ['Apple', 'Banana']
+// 需要先读取proxyList，...balalba
+const proxyList = reactive<ProxyForm[]>([])
+
+// 替换已经有的对象
+const pushOrReplace = (arr: ProxyForm[], newItem: ProxyForm): void => {
+  const index = arr.findIndex((item) => item.proxyConfigName === newItem.proxyConfigName)
+  if (index !== -1) {
+    arr[index] = newItem
+  } else {
+    arr.push(newItem)
   }
-})
+}
+
 // 处理从 ProxyDrawer 添加新的代理配置
-const handleAddProxy = (newProxy: string): void => {
-  // 这里您可以添加逻辑来更新 proxyname 数组
-  console.log('Adding new proxy:', newProxy)
+const handleAddProxy = (newProxy: ProxyForm): void => {
+  pushOrReplace(proxyList, newProxy)
+}
+
+// 删除指定name的proxy
+const onDelItem = (name: string): void => {
+  proxyList.map((value, index) => {
+    if (value.proxyConfigName === name) {
+      proxyList.splice(index, 1)
+    }
+  })
 }
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto mt-1 p-2">
-    <form class="w-2/3 space-y-6">
-      <FormField v-slot="{ componentField }" name="proxyname">
-        <FormItem>
-          <FormLabel>
-            <h1 class="text-2xl font-bold text-gray-800 mb-2 pl-2">代理配置</h1>
-          </FormLabel>
-          <FormControl>
-            <TagsInput
-              :model-value="componentField.modelValue"
-              class="cursor-not-allowed opacity-75"
-              @update:model-value="componentField['onUpdate:modelValue']"
-            >
-              <TagsInputItem v-for="item in componentField.modelValue" :key="item" :value="item">
-                <TagsInputItemText />
-                <TagsInputItemDelete />
-              </TagsInputItem>
-
-              <!-- 禁用输入框 -->
-              <TagsInputInput
-                placeholder="配置名..."
-                disabled
-                readonly
-                class="cursor-not-allowed"
-              />
-            </TagsInput>
-          </FormControl>
-          <FormDescription> 配置你的代理，使用下方按钮添加新配置 </FormDescription>
-          <FormMessage />
-        </FormItem>
-      </FormField>
+  <div class="max-w-4xl mx-auto mt-1 p-2 bg-white shadow-md rounded-lg">
+    <!-- 标题 -->
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-gray-800 mb-2 pl-2">代理配置</h1>
       <ProxyDrawer @add-proxy="handleAddProxy">
         <template #trigger>
-          <Button variant="outline"> 添加配置</Button>
+          <Button
+            variant="outline"
+            class="border-gray-300 text-gray-700 hover:border-gray-500 hover:text-black"
+          >
+            添加配置
+          </Button>
         </template>
       </ProxyDrawer>
-    </form>
+    </div>
+
+    <!-- 标签输入 -->
+    <div class="mb-2">
+      <label class="block text-sm font-medium text-gray-700 mb-2">配置名称列表</label>
+      <TagsInput
+        v-model="proxyList"
+        class="bg-background border border-border rounded-md px-4 py-3 flex flex-wrap gap-2 cursor-not-allowed opacity-75"
+      >
+        <TagsInputItem
+          v-for="item in proxyList"
+          :key="item.proxyConfigName"
+          :value="item.proxyConfigName"
+          class="flex items-center gap-2 rounded-full border border-border bg-muted/30 px-3 py-3 text-sm text-foreground backdrop-blur-sm shadow hover:shadow-md transition-all duration-200"
+        >
+          <!-- 标签文本 -->
+          <TagsInputItemText class="mr-1 font-medium" />
+
+          <!-- 删除按钮 -->
+          <TagsInputItemDelete
+            class="text-muted-foreground hover:text-red-500 hover:scale-110 transition duration-150 cursor-pointer"
+            @click="onDelItem(item.proxyConfigName)"
+          >
+            ✕
+          </TagsInputItemDelete>
+        </TagsInputItem>
+
+        <TagsInputInput disabled readonly placeholder="配置名..." />
+      </TagsInput>
+    </div>
+
+    <!-- 描述 -->
+    <p class="text-sm text-gray-500 mt-2">请使用「添加配置」按钮管理列表</p>
   </div>
 </template>
