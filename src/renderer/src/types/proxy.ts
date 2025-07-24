@@ -6,4 +6,4 @@ export const proxySchema = z.object({
   proxyConfigName: z.string(),
   requestType: z.enum(['get', 'post'])
 })
-export type ProxyForm = z.infer<typeof proxySchema>
+export type Proxy = z.infer<typeof proxySchema>

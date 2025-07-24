@@ -14,11 +14,11 @@ import {
 import { Input } from '@renderer/components/ui/input'
 import { Label } from '@renderer/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@renderer/components/ui/radio-group'
-import { proxySchema, ProxyForm } from '@renderer/types/proxy'
+import { proxySchema, Proxy } from '@renderer/types/proxy'
 import { cloneDeep } from 'lodash-es'
 
 // 表单数据
-const proxyForm = reactive<ProxyForm>({
+const proxyForm = reactive<Proxy>({
   proxyLink: '',
   targetLink: '',
   proxyConfigName: '',
@@ -33,7 +33,7 @@ const handleRequestTypeChange = (value: string): void => {
   }
 }
 
-const emit = defineEmits<{ (e: 'add-proxy', value: ProxyForm): void }>()
+const emit = defineEmits<{ (e: 'add-proxy', value: Proxy): void }>()
 
 // 重置表单
 const resetForm = (): void => {

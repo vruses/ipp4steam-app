@@ -9,14 +9,13 @@ import {
   TagsInputItemText
 } from '@renderer/components/ui/tags-input'
 import ProxyDrawer from './ProxyDrawer.vue'
-import type { ProxyForm } from '@renderer/types/proxy'
-import { reactive } from 'vue'
+import type { Proxy } from '@renderer/types/proxy'
+import { useProxyStore } from '@renderer/stores/proxy'
 
-// 需要先读取proxyList，...balalba
-const proxyList = reactive<ProxyForm[]>([])
+const proxyList = useProxyStore().proxyList
 
 // 替换已经有的对象
-const pushOrReplace = (arr: ProxyForm[], newItem: ProxyForm): void => {
+const pushOrReplace = (arr: Proxy[], newItem: Proxy): void => {
   const index = arr.findIndex((item) => item.proxyConfigName === newItem.proxyConfigName)
   if (index !== -1) {
     arr[index] = newItem
@@ -26,7 +25,7 @@ const pushOrReplace = (arr: ProxyForm[], newItem: ProxyForm): void => {
 }
 
 // 处理从 ProxyDrawer 添加新的代理配置
-const handleAddProxy = (newProxy: ProxyForm): void => {
+const handleAddProxy = (newProxy: Proxy): void => {
   pushOrReplace(proxyList, newProxy)
 }
 
