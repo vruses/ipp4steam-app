@@ -45,28 +45,35 @@ function randomize(): void {
 </script>
 
 <template>
-  <div class="w-full">
-    <div class="flex gap-2 items-center py-4">
-      <Button @click="randomize"> 心跳上报 </Button>
-      <Button @click="randomize"> 测试连接 </Button>
-      <DropdownMenu>
-        <DropdownMenuContent align="end">
-          <DropdownMenuCheckboxItem
-            v-for="column in table.getAllColumns().filter((column) => column.getCanHide())"
-            :key="column.id"
-            class="capitalize"
-            :model-value="column.getIsVisible()"
-            @update:model-value="
-              (value) => {
-                column.toggleVisibility(!!value)
-              }
-            "
-          >
-            {{ column.id }}
-          </DropdownMenuCheckboxItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+  <div class="w-full p-2">
+    <div class="flex justify-between items-center py-4">
+      <!-- 左侧标题 -->
+      <h1 class="text-2xl font-bold text-gray-800 mb-2 pl-2">用户管理</h1>
+
+      <!-- 右侧按钮组 -->
+      <div class="flex gap-2 items-center">
+        <Button @click="randomize"> 心跳上报 </Button>
+        <Button @click="randomize"> 测试连接 </Button>
+        <DropdownMenu>
+          <DropdownMenuContent align="end">
+            <DropdownMenuCheckboxItem
+              v-for="column in table.getAllColumns().filter((column) => column.getCanHide())"
+              :key="column.id"
+              class="capitalize"
+              :model-value="column.getIsVisible()"
+              @update:model-value="
+                (value) => {
+                  column.toggleVisibility(!!value)
+                }
+              "
+            >
+              {{ column.id }}
+            </DropdownMenuCheckboxItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
+
     <div class="rounded-md border">
       <Table>
         <TableHeader>
