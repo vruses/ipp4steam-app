@@ -5,6 +5,7 @@ declare global {
     electron: ElectronAPI
     api: {
       queryProxyList: () => Promise<unknown>
+      updateProxyList: (proxyList: unknown) => Promise<unknown>
     }
   }
 }
