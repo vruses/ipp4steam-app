@@ -16,7 +16,7 @@ import {
 } from '@renderer/components/ui/breadcrumb'
 import { Separator } from '@renderer/components/ui/separator'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@renderer/components/ui/sidebar'
-import DataTable from '@renderer/components/users/DataTable.vue'
+import AppMain from '@renderer/components/main/AppMain.vue'
 </script>
 
 <template>
@@ -42,17 +42,7 @@ import DataTable from '@renderer/components/users/DataTable.vue'
           </Breadcrumb>
         </div>
       </header>
-      <div class="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-          <div class="aspect-video rounded-xl bg-muted/50" />
-          <div class="aspect-video rounded-xl bg-muted/50" />
-          <div class="aspect-video rounded-xl bg-muted/50" />
-        </div>
-
-        <DataTable></DataTable>
-
-        <div class="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
-      </div>
+      <AppMain></AppMain>
     </SidebarInset>
   </SidebarProvider>
 </template>
