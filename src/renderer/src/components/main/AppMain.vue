@@ -17,7 +17,9 @@ import Logger from './right/Logger.vue'
     <!-- 右边区域，占一半，用于日志输出 -->
     <div class="w-1/2 h-full rounded-xl bg-muted/50 p-4 overflow-auto">
       <!-- 这里可以填日志内容 -->
-      <div class="h-full whitespace-pre-wrap font-mono text-sm"><Logger></Logger></div>
+      <div class="h-full whitespace-pre-wrap font-mono text-sm">
+        <Logger></Logger>
+      </div>
     </div>
   </div>
 </template>

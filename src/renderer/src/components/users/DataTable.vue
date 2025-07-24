@@ -24,6 +24,7 @@ import {
   TableRow
 } from '@renderer/components/ui/table'
 import { data, columns, UserInfo } from './columns'
+import LoginDialog from '../login/LoginDialog.vue'
 
 const table = useVueTable({
   data,
@@ -36,12 +37,10 @@ const table = useVueTable({
 })
 
 const statuses: UserInfo['status'][] = ['pending', 'success', 'failed']
-function randomize(): void {
-  data.value = data.value.map((item) => ({
-    ...item,
-    status: statuses[Math.floor(Math.random() * statuses.length)]
-  }))
-}
+
+const requestLogin = () => {}
+const heartbeatReport = () => {}
+const connectingTest = () => {}
 </script>
 
 <template>
@@ -52,8 +51,13 @@ function randomize(): void {
 
       <!-- 右侧按钮组 -->
       <div class="flex gap-2 items-center">
-        <Button @click="randomize"> 心跳上报 </Button>
-        <Button @click="randomize"> 测试连接 </Button>
+        <LoginDialog
+          ><template #trigger>
+            <Button variant="outline" @click="requestLogin"> 用户登录 </Button>
+          </template></LoginDialog
+        >
+        <Button variant="secondary" @click="heartbeatReport"> 心跳上报 </Button>
+        <Button @click="connectingTest"> 测试连接 </Button>
         <DropdownMenu>
           <DropdownMenuContent align="end">
             <DropdownMenuCheckboxItem
