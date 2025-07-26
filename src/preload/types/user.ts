@@ -17,4 +17,3 @@ export type LoginRes = z.infer<typeof loginResSchema>
 export type UserInfo = LoginRes & {
   proxynameList: string[]
 }
-export type ExpiredAccounts = { failedSteamIDList: UserInfo['steamID'][] }

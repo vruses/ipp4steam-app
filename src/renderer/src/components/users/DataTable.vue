@@ -23,24 +23,68 @@ import {
   TableHeader,
   TableRow
 } from '@renderer/components/ui/table'
-import { data, columns, UserInfo } from './columns'
-import LoginDialog from '../login/LoginDialog.vue'
+import { columns } from './columns'
+import { Loader2, Clipboard, UserCheck } from 'lucide-vue-next'
+import { computed, reactive, shallowRef, watch } from 'vue'
+import { toast } from 'vue-sonner'
+import { useUserStore } from '@renderer/stores/user'
+import { UserInfo } from '@renderer/types/user'
 
-const table = useVueTable({
-  data,
-  columns,
-  getCoreRowModel: getCoreRowModel(),
-  getPaginationRowModel: getPaginationRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-  getExpandedRowModel: getExpandedRowModel()
-})
+// 组件全局变量
+const store = useUserStore()
+const userManager = store.userManager
+const userList = computed(() => store.userManager.userList)
+const data = shallowRef<UserInfo[]>([])
+watch(
+  () => userList,
+  () => {
+    data.value = [...userManager.userList]
+  },
+  { deep: true }
+)
 
-const statuses: UserInfo['status'][] = ['pending', 'success', 'failed']
+let table = useVueTable(
+  reactive({
+    data, // 注意这里要用 .value
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getExpandedRowModel: getExpandedRowModel()
+  })
+)
 
-const requestLogin = () => {}
-const heartbeatReport = () => {}
-const connectingTest = () => {}
+// 一键粘贴凭证调用的登录函数
+const login = useUserStore().login
+const requestLogin = async (): Promise<void> => {
+  try {
+    const text = await navigator.clipboard.readText()
+    if (text) {
+      userManager.btnStatus = 'pending'
+      const userInfo = await login(text)
+      toast.success('信息提示', {
+        description: `${userInfo.nickname} 登录成功！`
+      })
+    }
+  } catch {
+    toast.warning('错误提示', { description: '登录失败！' })
+  } finally {
+    userManager.btnStatus = 'idle'
+  }
+}
+const hasAllCookiesExpired = useUserStore().hasAllCookiesExpired
+const connectingTest = (): void => {
+  hasAllCookiesExpired()
+    .then((nicknameList) => {
+      toast.success('信息提示', {
+        description: `${nicknameList.join(',')} 登录状态已失效！`
+      })
+    })
+    .catch(() => {
+      toast.warning('错误提示', { description: '检查状态出现错误！' })
+    })
+}
 </script>
 
 <template>
@@ -48,16 +92,23 @@ const connectingTest = () => {}
     <div class="flex justify-between items-center py-4">
       <!-- 左侧标题 -->
       <h1 class="text-2xl font-bold text-gray-800 mb-2 pl-2">用户管理</h1>
-
       <!-- 右侧按钮组 -->
       <div class="flex gap-2 items-center">
-        <LoginDialog
-          ><template #trigger>
-            <Button variant="outline" @click="requestLogin"> 用户登录 </Button>
-          </template></LoginDialog
+        <Button
+          class="cursor-pointer"
+          variant="outline"
+          :disabled="userManager.btnStatus === 'pending'"
+          @click="requestLogin"
         >
-        <Button variant="secondary" @click="heartbeatReport"> 心跳上报 </Button>
-        <Button @click="connectingTest"> 测试连接 </Button>
+          <Loader2 v-if="userManager.btnStatus === 'pending'" class="w-4 h-4 animate-spin" />
+          <Clipboard v-if="userManager.btnStatus === 'idle'" />
+          <span v-if="userManager.btnStatus === 'idle'">粘贴凭证</span>
+          <span v-else-if="userManager.btnStatus === 'pending'">登录中</span>
+        </Button>
+        <Button @click="connectingTest">
+          <UserCheck />
+          检查登录状态
+        </Button>
         <DropdownMenu>
           <DropdownMenuContent align="end">
             <DropdownMenuCheckboxItem
