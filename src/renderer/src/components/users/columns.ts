@@ -48,13 +48,13 @@ export const columns: ColumnDef<UserInfo>[] = [
     id: 'actions',
     enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original
+      const userInfo = row.original
 
       return h(
         'div',
         { class: 'relative' },
         h(DropdownAction, {
-          payment,
+          userInfo,
           onExpand: row.toggleExpanded
         })
       )
