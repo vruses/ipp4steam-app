@@ -11,6 +11,7 @@ import {
 import ProxyDrawer from './ProxyDrawer.vue'
 import type { Proxy } from '@renderer/types/proxy'
 import { useProxyStore } from '@renderer/stores/proxy'
+import { BadgeX, Plus } from 'lucide-vue-next'
 
 const proxyList = useProxyStore().proxyList
 
@@ -50,7 +51,7 @@ const onDelItem = (name: string): void => {
             variant="outline"
             class="border-gray-300 text-gray-700 hover:border-gray-500 hover:text-black"
           >
-            添加配置
+            <Plus />添加配置
           </Button>
         </template>
       </ProxyDrawer>
@@ -61,27 +62,32 @@ const onDelItem = (name: string): void => {
       <label class="block text-sm font-medium text-gray-700 mb-2">配置名称列表</label>
       <TagsInput
         v-model="proxyList"
-        class="bg-background border border-border rounded-md px-4 py-3 flex flex-wrap gap-2 cursor-not-allowed opacity-75"
+        class="flex flex-wrap gap-2 p-2 border border-gray-300 bg-white dark:bg-gray-800 rounded-[10px]"
       >
         <TagsInputItem
           v-for="item in proxyList"
           :key="item.proxyConfigName"
           :value="item.proxyConfigName"
-          class="flex items-center gap-2 rounded-full border border-border bg-muted/30 px-3 py-3 text-sm text-foreground backdrop-blur-sm shadow hover:shadow-md transition-all duration-200"
+          class="flex items-center px-1 py-1 bg-gray-100 rounded-[7px] text-sm"
         >
           <!-- 标签文本 -->
-          <TagsInputItemText class="mr-1 font-medium" />
+          <TagsInputItemText />
 
           <!-- 删除按钮 -->
           <TagsInputItemDelete
-            class="text-muted-foreground hover:text-red-500 hover:scale-110 transition duration-150 cursor-pointer"
+            class="cursor-pointer hover:text-red-500 transition duration-200"
             @click="onDelItem(item.proxyConfigName)"
           >
-            ✕
+            <BadgeX class="w-3 h-3" />
           </TagsInputItemDelete>
         </TagsInputItem>
 
-        <TagsInputInput disabled readonly placeholder="配置名..." />
+        <TagsInputInput
+          disabled
+          readonly
+          placeholder="配置名..."
+          class="text-gray-400 dark:text-gray-500 placeholder:text-sm bg-transparent outline-none"
+        />
       </TagsInput>
     </div>
 
