@@ -77,9 +77,13 @@ const hasAllCookiesExpired = useUserStore().hasAllCookiesExpired
 const connectingTest = (): void => {
   hasAllCookiesExpired()
     .then((nicknameList) => {
-      toast.success('信息提示', {
-        description: `${nicknameList.join(',')} 登录状态已失效！`
-      })
+      nicknameList.length
+        ? toast.warning('信息提示', {
+            description: `${nicknameList.join(',')} 登录状态已失效！`
+          })
+        : toast.success('信息提示', {
+            description: `登录状态全有效！`
+          })
     })
     .catch(() => {
       toast.warning('错误提示', { description: '检查状态出现错误！' })
