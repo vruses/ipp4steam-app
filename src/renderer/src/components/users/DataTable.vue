@@ -25,7 +25,7 @@ import {
 } from '@renderer/components/ui/table'
 import { columns } from './columns'
 import { Loader2, Clipboard, UserCheck } from 'lucide-vue-next'
-import { computed, reactive, shallowRef, watch } from 'vue'
+import { reactive, shallowRef, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { useUserStore } from '@renderer/stores/user'
 import { UserInfo } from '@renderer/types/user'
@@ -33,12 +33,12 @@ import { UserInfo } from '@renderer/types/user'
 // 组件全局变量
 const store = useUserStore()
 const userManager = store.userManager
-const userList = computed(() => store.userManager.userList)
+const userList = userManager.userList
 const data = shallowRef<UserInfo[]>([])
 watch(
   () => userList,
   () => {
-    data.value = [...userManager.userList]
+    data.value = [...userList]
   },
   { deep: true }
 )
