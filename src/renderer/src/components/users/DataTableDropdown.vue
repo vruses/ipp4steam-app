@@ -46,7 +46,7 @@ const updateSubscription = (): void => {
   const index = userList.findIndex((value) => {
     return value.steamID === userInfo.steamID
   })
-  userList[index].proxynameList = currentList
+  userList[index].proxynameList = [...currentList]
 }
 </script>
 

@@ -7,7 +7,23 @@ type UserManager = {
   userList: UserInfo[]
 }
 export const useUserStore = defineStore('user', () => {
-  const userManager = reactive<UserManager>({ btnStatus: 'idle', userList: [] })
+  const userManager = reactive<UserManager>({
+    btnStatus: 'idle',
+    userList: [
+      {
+        steamID: 123,
+        nickname: 'a',
+        loginStatus: 'success',
+        proxynameList: ['a', 'b', 'c', '创建购买单']
+      },
+      {
+        steamID: 456,
+        nickname: 'b',
+        loginStatus: 'failed',
+        proxynameList: ['a', 'b', 'c', '创建购买单']
+      }
+    ]
+  })
   // cookie传给preload,将返回的userinfo传给组件进行信息展示
   const login = async (cookie: string): Promise<UserInfo> => {
     // 调用window.api.requestUserLogin(cookie)返回userinfo
