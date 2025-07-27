@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MoreHorizontal, Check } from 'lucide-vue-next'
+import { MoreHorizontal, Check, Bell, Trash2 } from 'lucide-vue-next'
 import { Button } from '@renderer/components/ui/button'
 import {
   DropdownMenu,
@@ -63,8 +63,8 @@ const updateSubscription = (): void => {
       <DropdownMenuLabel>操作</DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuSub>
-        <DropdownMenuSubTrigger>
-          <span>订阅</span>
+        <DropdownMenuSubTrigger class="flex items-center gap-2">
+          <Bell class="w-4 h-4 text-gray-500" /><span>订阅</span>
         </DropdownMenuSubTrigger>
         <DropdownMenuPortal>
           <DropdownMenuSubContent>
@@ -87,7 +87,11 @@ const updateSubscription = (): void => {
           </DropdownMenuSubContent>
         </DropdownMenuPortal>
       </DropdownMenuSub>
-      <DropdownMenuItem>删除</DropdownMenuItem>
+      <DropdownMenuItem>
+        <Trash2 class="text-red-500" />
+
+        <span class="text-red-500">删除</span>
+      </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 </template>
