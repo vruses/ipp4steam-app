@@ -8,11 +8,6 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()]
   },
   preload: {
-    resolve: {
-      alias: {
-        '@renderer': resolve('src/renderer/src')
-      }
-    },
     plugins: [externalizeDepsPlugin()]
   },
   renderer: {
