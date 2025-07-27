@@ -9,7 +9,24 @@ import {
 } from '@renderer/components/ui/number-field'
 import { ScrollArea } from '@renderer/components/ui/scroll-area'
 import { Separator } from '@renderer/components/ui/separator'
+import { useMonitorStore } from '@renderer/stores/monitor'
+import { debounce } from 'lodash-es'
+import { computed } from 'vue'
+import { MonitorPause, MonitorPlay } from 'lucide-vue-next'
 
+const store = useMonitorStore()
+const monitoringActive = computed(() => store.monitoringActive)
+const updateInterval = store.updateInterval
+const updateMonitorStatus = store.updateMonitorStatus
+const debounceUpdateInterval = debounce(updateInterval, 1000)
+// 更新监控频率
+const handleInput = (queryInterval: number): void => {
+  debounceUpdateInterval(queryInterval)
+}
+// 更新监控状态
+const handleMonitorClick = (): void => {
+  updateMonitorStatus()
+}
 const tags = Array.from({ length: 3 }).map((_, i, a) => `v1.2.0-beta.${a.length - i}`)
 </script>
 
@@ -23,7 +40,7 @@ const tags = Array.from({ length: 3 }).map((_, i, a) => `v1.2.0-beta.${a.length 
         <!-- 间隔输入 -->
         <div>
           <label for="userInput" class="block text-sm font-bold text-gray-700 mb-1">间隔/ms</label>
-          <NumberField id="age" :default-value="18" :min="0">
+          <NumberField id="age" :default-value="18" :min="0" @update:model-value="handleInput">
             <NumberFieldContent>
               <NumberFieldDecrement />
               <NumberFieldInput />
@@ -35,7 +52,15 @@ const tags = Array.from({ length: 3 }).map((_, i, a) => `v1.2.0-beta.${a.length 
         <!-- 监控按钮 -->
         <div>
           <label class="block text-sm font-bold text-gray-700 mb-1">监控</label>
-          <Button variant="destructive" class="w-full">开始监控</Button>
+          <Button
+            :variant="monitoringActive ? 'destructive' : 'default'"
+            class="w-full"
+            @click="handleMonitorClick"
+          >
+            <MonitorPause v-if="monitoringActive" class="w-4 h-4" />
+            <MonitorPlay v-else class="w-4 h-4" />
+            {{ monitoringActive ? '停止监控' : '开始监控' }}</Button
+          >
         </div>
       </div>
 
@@ -43,7 +68,7 @@ const tags = Array.from({ length: 3 }).map((_, i, a) => `v1.2.0-beta.${a.length 
       <div class="w-7/10">
         <ScrollArea class="h-50 w-full rounded-md border">
           <div class="p-4">
-            <h4 class="mb-4 text-sm font-medium leading-none">Tags</h4>
+            <h4 class="mb-4 text-sm font-medium leading-none">当前订阅信息</h4>
 
             <div v-for="tag in tags" :key="tag">
               <div class="text-sm">
