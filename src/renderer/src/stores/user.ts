@@ -36,7 +36,7 @@ export const useUserStore = defineStore('user', () => {
       return value.steamID === id
     })
     index !== -1
-      ? (userManager.userList[index] = {
+      ? Object.assign(userManager.userList[index], {
           steamID: 123,
           nickname: 'a',
           loginStatus: 'success',
@@ -62,5 +62,20 @@ export const useUserStore = defineStore('user', () => {
     // 调用await window.api.hasAllCookiesExpired()返回ExpiredAccounts
     return ['a', 'b', 'c']
   }
-  return { login, hasAllCookiesExpired, userManager }
+  // 更新用户订阅
+  const updateSubscription = (steamID: number, currentList: string[]): void => {
+    const index = userManager.userList.findIndex((value) => {
+      return value.steamID === steamID
+    })
+    // 注意副作用，会使得其它解构变量丢失引
+    userManager.userList[index].proxynameList = currentList
+  }
+  // 删除用户
+  const deleteUser = (steamID: number): void => {
+    const index = userManager.userList.findIndex((value) => {
+      return value.steamID === steamID
+    })
+    userManager.userList.splice(index, 1)
+  }
+  return { login, hasAllCookiesExpired, updateSubscription, deleteUser, userManager }
 })

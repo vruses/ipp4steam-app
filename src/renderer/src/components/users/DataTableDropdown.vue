@@ -18,7 +18,7 @@ import { useProxyStore } from '@renderer/stores/proxy'
 import { useUserStore } from '@renderer/stores/user'
 import { UserInfo } from '@renderer/types/user'
 import { cn } from '@renderer/lib/utils'
-import { computed, reactive } from 'vue'
+import { computed, watchEffect } from 'vue'
 
 const { proxyMap } = useProxyStore()
 const proxyList = computed(() => [...proxyMap])
@@ -31,7 +31,12 @@ const props = defineProps<Props>()
 const userInfo = props.userInfo
 let proxynameList = userInfo.proxynameList
 // 从props解构初始化当前用户的代理列表
-const currentList = reactive(new Set([...proxynameList]))
+
+let currentList = new Set([...proxynameList])
+watchEffect(() => {
+  // user更新订阅更新组件显示
+  currentList = new Set([...userInfo.proxynameList])
+})
 // 订阅变更时重新渲染用户订阅的代理列表
 const onSubscribingProxy = (proxyConfigName: string): void => {
   if (currentList.has(proxyConfigName)) {
@@ -40,15 +45,16 @@ const onSubscribingProxy = (proxyConfigName: string): void => {
     currentList.add(proxyConfigName)
   }
 }
-// 完成最终订阅更新时触发
-const updateSubscription = (): void => {
-  const store = useUserStore()
-  const userList = store.userManager.userList
-  const index = userList.findIndex((value) => {
-    return value.steamID === userInfo.steamID
-  })
-  // 注意副作用，会使给其它解构变量丢失引用
-  userList[index].proxynameList = [...currentList]
+const updateSubscription = useUserStore().updateSubscription
+// 关闭菜单完成最终订阅更新时触发
+const onClosingMenu = (): void => {
+  updateSubscription(userInfo.steamID, [...currentList])
+}
+// 删除用户
+const deleteUser = useUserStore().deleteUser
+const handleDeleteUser = (): void => {
+  // userInfo.steamID
+  deleteUser(userInfo.steamID)
 }
 </script>
 
@@ -60,7 +66,7 @@ const updateSubscription = (): void => {
         <MoreHorizontal class="w-4 h-4" />
       </Button>
     </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" @pointer-down-outside="updateSubscription">
+    <DropdownMenuContent align="end" @pointer-down-outside="onClosingMenu">
       <DropdownMenuLabel>操作</DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuSub>
@@ -86,7 +92,7 @@ const updateSubscription = (): void => {
           </DropdownMenuSubContent>
         </DropdownMenuPortal>
       </DropdownMenuSub>
-      <DropdownMenuItem>
+      <DropdownMenuItem @click="handleDeleteUser">
         <Trash2 class="text-red-500" />
 
         <span class="text-red-500">删除</span>
