@@ -28,7 +28,7 @@ const onDelItem = (name: string): void => {
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto mt-1 p-2 bg-white shadow-md rounded-lg">
+  <div class="max-w-4xl mx-auto mt-1 p-2 shadow-md rounded-lg">
     <!-- 标题 -->
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold text-gray-800 mb-2 pl-2">代理配置</h1>
@@ -49,7 +49,7 @@ const onDelItem = (name: string): void => {
       <label class="block text-sm font-medium text-gray-700 mb-2">配置名称列表</label>
       <TagsInput
         v-model="proxyList"
-        class="flex flex-wrap gap-2 p-2 border border-gray-300 bg-white dark:bg-gray-800 rounded-[10px]"
+        class="flex flex-wrap gap-2 p-2 border border-gray-300 dark:bg-gray-800 rounded-[10px]"
       >
         <TagsInputItem
           v-for="item in proxyList"
