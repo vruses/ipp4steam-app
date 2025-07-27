@@ -18,9 +18,10 @@ import { useProxyStore } from '@renderer/stores/proxy'
 import { useUserStore } from '@renderer/stores/user'
 import { UserInfo } from '@renderer/types/user'
 import { cn } from '@renderer/lib/utils'
-import { reactive } from 'vue'
+import { computed, reactive } from 'vue'
 
-const { proxyList } = useProxyStore()
+const { proxyMap } = useProxyStore()
+const proxyList = computed(() => [...proxyMap])
 interface Props {
   userInfo: UserInfo // 接收行数据
   onExpand?: () => void
@@ -70,21 +71,18 @@ const updateSubscription = (): void => {
             <!--  -->
             <DropdownMenuCheckboxItem
               v-for="proxy in proxyList"
-              :key="proxy.proxyConfigName"
+              :key="proxy[0]"
               class="pl-0"
               @select="(event) => event.preventDefault()"
-              @click="onSubscribingProxy(proxy.proxyConfigName)"
+              @click="onSubscribingProxy(proxy[0])"
             >
               <!-- 用户订阅的配置是否包含此配置名 -->
               <Check
                 :class="
-                  cn(
-                    'ml-2 h-4 w-4',
-                    currentList.includes(proxy.proxyConfigName) ? 'opacity-100' : 'opacity-0'
-                  )
+                  cn('ml-2 h-4 w-4', currentList.includes(proxy[0]) ? 'opacity-100' : 'opacity-0')
                 "
               ></Check
-              ><span>{{ proxy.proxyConfigName }}</span>
+              ><span>{{ proxy[0] }}</span>
             </DropdownMenuCheckboxItem>
           </DropdownMenuSubContent>
         </DropdownMenuPortal>

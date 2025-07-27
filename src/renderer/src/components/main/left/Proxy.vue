@@ -12,31 +12,18 @@ import ProxyDrawer from './ProxyDrawer.vue'
 import type { Proxy } from '@renderer/types/proxy'
 import { useProxyStore } from '@renderer/stores/proxy'
 import { BadgeX, Plus } from 'lucide-vue-next'
+import { computed } from 'vue'
 
-const proxyList = useProxyStore().proxyList
-
-// 替换已经有的对象
-const pushOrReplace = (arr: Proxy[], newItem: Proxy): void => {
-  const index = arr.findIndex((item) => item.proxyConfigName === newItem.proxyConfigName)
-  if (index !== -1) {
-    arr[index] = newItem
-  } else {
-    arr.push(newItem)
-  }
-}
-
+const proxyMap = useProxyStore().proxyMap
+const proxyList = computed(() => [...proxyMap])
 // 处理从 ProxyDrawer 添加新的代理配置
 const handleAddProxy = (newProxy: Proxy): void => {
-  pushOrReplace(proxyList, newProxy)
+  proxyMap.set(newProxy.proxyConfigName, newProxy.proxyData)
 }
 
 // 删除指定name的proxy
 const onDelItem = (name: string): void => {
-  proxyList.map((value, index) => {
-    if (value.proxyConfigName === name) {
-      proxyList.splice(index, 1)
-    }
-  })
+  proxyMap.delete(name)
 }
 </script>
 
@@ -66,8 +53,8 @@ const onDelItem = (name: string): void => {
       >
         <TagsInputItem
           v-for="item in proxyList"
-          :key="item.proxyConfigName"
-          :value="item.proxyConfigName"
+          :key="item[0]"
+          :value="item[0]"
           class="flex items-center px-1 py-1 bg-gray-100 rounded-[7px] text-sm"
         >
           <!-- 标签文本 -->
@@ -76,7 +63,7 @@ const onDelItem = (name: string): void => {
           <!-- 删除按钮 -->
           <TagsInputItemDelete
             class="cursor-pointer hover:text-red-500 transition duration-200"
-            @click="onDelItem(item.proxyConfigName)"
+            @click="onDelItem(item[0])"
           >
             <BadgeX class="w-3 h-3" />
           </TagsInputItemDelete>

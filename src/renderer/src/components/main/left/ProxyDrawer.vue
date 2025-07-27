@@ -19,17 +19,19 @@ import { cloneDeep } from 'lodash-es'
 
 // 表单数据
 const proxyForm = reactive<Proxy>({
-  proxyLink: '',
-  targetLink: '',
   proxyConfigName: '',
-  // get用于请求价格列表，post用于创建订单
-  requestType: 'get'
+  proxyData: {
+    proxyLink: '',
+    targetLink: '',
+    // get用于请求价格列表，post用于创建订单
+    requestType: 'get'
+  }
 })
 
 // 监听 requestType 变化
 const handleRequestTypeChange = (value: string): void => {
   if (value === 'get' || value === 'post') {
-    proxyForm.requestType = value
+    proxyForm.proxyData.requestType = value
   }
 }
 
@@ -37,10 +39,10 @@ const emit = defineEmits<{ (e: 'add-proxy', value: Proxy): void }>()
 
 // 重置表单
 const resetForm = (): void => {
-  proxyForm.proxyLink = ''
-  proxyForm.targetLink = ''
+  proxyForm.proxyData.proxyLink = ''
+  proxyForm.proxyData.targetLink = ''
   proxyForm.proxyConfigName = ''
-  proxyForm.requestType = 'get'
+  proxyForm.proxyData.requestType = 'get'
 }
 // 提交表单
 const handleSubmit = (): void => {
@@ -81,7 +83,7 @@ const handleSubmit = (): void => {
               <Label for="proxy-link">代理链接</Label>
               <Input
                 id="proxy-link"
-                v-model="proxyForm.proxyLink"
+                v-model="proxyForm.proxyData.proxyLink"
                 placeholder="输入代理链接..."
                 type="url"
               />
@@ -90,14 +92,18 @@ const handleSubmit = (): void => {
             <!-- 目标拦截 -->
             <div class="space-y-2">
               <Label for="target-link">目标链接</Label>
-              <Input id="target-link" v-model="proxyForm.targetLink" placeholder="输入目标链接.." />
+              <Input
+                id="target-link"
+                v-model="proxyForm.proxyData.targetLink"
+                placeholder="输入目标链接.."
+              />
             </div>
 
             <!-- 请求类型选择 -->
             <div class="space-y-3">
               <Label>目标链接类型</Label>
               <RadioGroup
-                :model-value="proxyForm.requestType"
+                :model-value="proxyForm.proxyData.requestType"
                 class="flex flex-row space-x-6"
                 @update:model-value="handleRequestTypeChange"
               >
