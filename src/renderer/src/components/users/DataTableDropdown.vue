@@ -31,13 +31,13 @@ const props = defineProps<Props>()
 const userInfo = props.userInfo
 let proxynameList = userInfo.proxynameList
 // 从props解构初始化当前用户的代理列表
-const currentList = reactive([...proxynameList])
+const currentList = reactive(new Set([...proxynameList]))
 // 订阅变更时重新渲染用户订阅的代理列表
 const onSubscribingProxy = (proxyConfigName: string): void => {
-  if (currentList.includes(proxyConfigName)) {
-    currentList.splice(currentList.indexOf(proxyConfigName), 1)
+  if (currentList.has(proxyConfigName)) {
+    currentList.delete(proxyConfigName)
   } else {
-    currentList.push(proxyConfigName)
+    currentList.add(proxyConfigName)
   }
 }
 // 完成最终订阅更新时触发
@@ -47,6 +47,7 @@ const updateSubscription = (): void => {
   const index = userList.findIndex((value) => {
     return value.steamID === userInfo.steamID
   })
+  // 注意副作用，会使给其它解构变量丢失引用
   userList[index].proxynameList = [...currentList]
 }
 </script>
@@ -78,9 +79,7 @@ const updateSubscription = (): void => {
             >
               <!-- 用户订阅的配置是否包含此配置名 -->
               <Check
-                :class="
-                  cn('ml-2 h-4 w-4', currentList.includes(proxy[0]) ? 'opacity-100' : 'opacity-0')
-                "
+                :class="cn('ml-2 h-4 w-4', currentList.has(proxy[0]) ? 'opacity-100' : 'opacity-0')"
               ></Check
               ><span>{{ proxy[0] }}</span>
             </DropdownMenuCheckboxItem>
