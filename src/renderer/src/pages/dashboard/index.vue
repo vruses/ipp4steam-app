@@ -10,14 +10,17 @@ import AppHeaderBar from '@renderer/components/headerbar/AppHeaderBar.vue'
 </script>
 
 <template>
-  <!-- 头部 -->
-  <header class="shadow-md fixed top-0 left-0 right-0 z-10">
-    <AppHeaderBar></AppHeaderBar>
-  </header>
-  <div class="flex-1 p-10 pb-0">
-    <!-- 内容区域 -->
-    <main class="">
-      <AppMain></AppMain>
-    </main>
+  <div class="h-screen flex flex-col">
+    <!-- Header 固定，不受滚动影响 -->
+    <header class="fixed top-0 left-0 right-0 z-10 h-auto shadow-md">
+      <AppHeaderBar />
+    </header>
+
+    <!-- 内容区域，设置 padding-top 留出 header 空间 -->
+    <div class="flex-1 overflow-hidden">
+      <main class="h-full overflow-y-auto pb-0">
+        <AppMain />
+      </main>
+    </div>
   </div>
 </template>

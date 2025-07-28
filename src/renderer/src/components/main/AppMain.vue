@@ -6,19 +6,20 @@ import Logger from './right/Logger.vue'
 </script>
 
 <template>
-  <div class="flex h-screen gap-4">
-    <!-- 左边区域，占一半，3行视频框 -->
-    <div class="flex w-1/2 flex-col gap-4 h-full">
-      <div class="flex-1 rounded-xl bg-muted/50"><Proxy></Proxy></div>
-      <div class="flex-2 rounded-xl bg-muted/50"><DataTable></DataTable></div>
-      <div class="flex-2 rounded-xl bg-muted/50"><Monitor></Monitor></div>
-    </div>
-
-    <!-- 右边区域，占一半，用于日志输出 -->
-    <div class="w-1/2 h-full rounded-xl bg-muted/50 p-4 overflow-auto">
-      <!-- 这里可以填日志内容 -->
-      <div class="h-full whitespace-pre-wrap font-mono text-sm">
-        <Logger></Logger>
+  <!-- 内容部分，考虑 header 高度 -->
+  <div class="flex-1 pt-10 overflow-hidden">
+    <div class="flex h-full gap-4 px-4 pb-4">
+      <!-- 左边区域 -->
+      <div class="flex w-1/2 flex-col gap-4 h-full">
+        <div class="flex-1 rounded-xl bg-muted/50"><Proxy /></div>
+        <div class="flex-2 rounded-xl bg-muted/50"><DataTable /></div>
+        <div class="flex-2 rounded-xl bg-muted/50"><Monitor /></div>
+      </div>
+      <!-- 右边区域 -->
+      <div class="w-1/2 h-full rounded-xl bg-muted/50 p-4 overflow-y-auto">
+        <div class="h-full whitespace-pre-wrap font-mono text-sm">
+          <Logger />
+        </div>
       </div>
     </div>
   </div>
