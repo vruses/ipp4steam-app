@@ -32,3 +32,8 @@ export interface IMonitor {
   // 获取新消息
   ReceiveNews: () => Promise<ResultType<string>>
 }
+export interface IWindow {
+  requestWindowClose: () => void
+  requestWindowMaximize: () => void
+  requestWindowMinimize: () => void
+}

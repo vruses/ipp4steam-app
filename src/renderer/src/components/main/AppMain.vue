@@ -6,7 +6,7 @@ import Logger from './right/Logger.vue'
 </script>
 
 <template>
-  <div class="flex h-screen p-4 gap-4">
+  <div class="flex h-screen gap-4">
     <!-- 左边区域，占一半，3行视频框 -->
     <div class="flex w-1/2 flex-col gap-4 h-full">
       <div class="flex-1 rounded-xl bg-muted/50"><Proxy></Proxy></div>

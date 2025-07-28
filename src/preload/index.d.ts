@@ -1,5 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-import { IMonitor, IProxy, IUser } from './types/api'
+import { IMonitor, IProxy, IUser, IWindow } from './types/api'
 
 declare global {
   interface Window {
@@ -7,5 +7,6 @@ declare global {
     userApi: IUser
     proxyApi: IProxy
     monitorApi: IMonitor
+    windowApi: IWindow
   }
 }
