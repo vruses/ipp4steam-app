@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -12,7 +12,7 @@ function createWindow(): void {
     show: false,
     autoHideMenuBar: true,
     // 去除默认窗口
-    // frame: false,
+    frame: false,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
@@ -55,7 +55,7 @@ app.whenReady().then(() => {
   })
 
   // 完全移除菜单（防止 Alt 弹出菜单）
-  // Menu.setApplicationMenu(null)
+  Menu.setApplicationMenu(null)
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))

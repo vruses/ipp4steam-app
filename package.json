@@ -1,11 +1,22 @@
 {
   "name": "ipp4steam-app",
   "version": "1.0.0",
-  "description": "An Electron application with Vue and TypeScript",
+  "description": "An application for proxy management",
   "main": "./out/main/index.js",
-  "author": "example.com",
-  "homepage": "https://electron-vite.org",
+  "author": "vruses",
+  "homepage": "https://www.github.com/vruses",
   "type": "module",
+  "build": {
+    "appId": "me.vruses.app",
+    "productName": "ipp4steam",
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",
@@ -51,7 +62,6 @@
     "@electron-toolkit/tsconfig": "^1.0.1",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.16.5",
-    "@types/tailwindcss": "^3.1.0",
     "@vitejs/plugin-vue": "^5.2.3",
     "electron": "^37.2.3",
     "electron-builder": "^25.1.8",

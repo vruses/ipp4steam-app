@@ -1182,13 +1182,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/tailwindcss@^3.1.0":
-  version "3.1.0"
-  resolved "https://mirrors.cloud.tencent.com/npm/@types/tailwindcss/-/tailwindcss-3.1.0.tgz#1185e4b3437c6e0f19d6cc8cd42738a94fd7b64f"
-  integrity sha512-JxPzrm609hzvF4nmOI3StLjbBEP3WWQxDDJESqR1nh94h7gyyy3XSl0hn5RBMJ9mPudlLjtaXs5YEBtLw7CnPA==
-  dependencies:
-    tailwindcss "*"
-
 "@types/verror@^1.10.3":
   version "1.10.11"
   resolved "https://registry.npmmirror.com/@types/verror/-/verror-1.10.11.tgz#d3d6b418978c8aa202d41e5bb3483227b6ecc1bb"
@@ -5040,7 +5033,7 @@ tailwind-merge@^3.3.1:
   resolved "https://mirrors.cloud.tencent.com/npm/tailwind-merge/-/tailwind-merge-3.3.1.tgz#a7e7db7c714f6020319e626ecfb7e7dac8393a4b"
   integrity sha512-gBXpgUm/3rp1lMZZrM/w7D8GKqshif0zAymAhbCyIt8KMe+0v9DQ7cdYLR4FHH/cKpdTXb+A/tKKU3eolfsI+g==
 
-tailwindcss@*, tailwindcss@4.1.11, tailwindcss@^4.1.11, tailwindcss@^4.1.7:
+tailwindcss@4.1.11, tailwindcss@^4.1.11, tailwindcss@^4.1.7:
   version "4.1.11"
   resolved "https://registry.npmmirror.com/tailwindcss/-/tailwindcss-4.1.11.tgz#799af3e98c19c5baaefafc6e0c16304a0e684854"
   integrity sha512-2E9TBm6MDD/xKYe+dvJZAmg3yxIEDNRc0jwlNyDg/4Fil2QcSLjFKGVff0lAf1jjeaArlG/M75Ey/EYr/OJtBA==

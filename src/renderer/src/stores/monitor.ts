@@ -11,6 +11,6 @@ export const useMonitorStore = defineStore('monitor', () => {
     monitoringActive.value = !monitoringActive.value
     console.log(monitoringActive)
   }
-  const ReceiveNews = (): void => {}
+  // const ReceiveNews = (): void => {}
   return { queryInterval, monitoringActive, updateInterval, updateMonitorStatus }
 })
