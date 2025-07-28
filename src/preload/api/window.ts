@@ -12,5 +12,7 @@ export const windowApi = {
   requestWindowMinimize: () => {
     const channelName = 'window-minimize'
     ipcRenderer.send(channelName)
-  }
+  },
+  onUpdateWindowStatus: (callback: (value: boolean) => void) =>
+    ipcRenderer.on('update-window-status', (_event, value: boolean) => callback(value))
 }

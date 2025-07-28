@@ -16,6 +16,14 @@ function registerWindowIpc(win: BrowserWindow): void {
   ipcMain.on('window-minimize', () => {
     win.minimize()
   })
+
+  win.on('maximize', () => {
+    win.webContents.send('update-window-status', true)
+  })
+
+  win.on('unmaximize', () => {
+    win.webContents.send('update-window-status', false)
+  })
 }
 
 export default registerWindowIpc

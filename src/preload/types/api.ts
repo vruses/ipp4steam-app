@@ -36,4 +36,5 @@ export interface IWindow {
   requestWindowClose: () => void
   requestWindowMaximize: () => void
   requestWindowMinimize: () => void
+  onUpdateWindowStatus: (callback: (value: boolean) => void) => void
 }

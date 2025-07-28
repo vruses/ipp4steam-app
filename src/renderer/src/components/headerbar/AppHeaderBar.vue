@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { X, Maximize, Minus, Minimize } from 'lucide-vue-next'
 import Button from '@renderer/components/ui/button/Button.vue'
-import { ref } from 'vue'
+import { useWindowStore } from '@renderer/stores/window'
+import { storeToRefs } from 'pinia'
 
-const isMax = ref(false)
+const { isMax } = storeToRefs(useWindowStore())
 const minimizeWindow = (): void => {
   window.windowApi.requestWindowMinimize()
 }
