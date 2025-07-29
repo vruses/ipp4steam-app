@@ -5,9 +5,21 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   main: {
+    resolve: {
+      alias: {
+        '@main': resolve('src/main'),
+        '@preload': resolve('src/preload')
+      }
+    },
     plugins: [externalizeDepsPlugin()]
   },
   preload: {
+    resolve: {
+      alias: {
+        '@main': resolve('src/main'),
+        '@preload': resolve('src/preload')
+      }
+    },
     plugins: [externalizeDepsPlugin()]
   },
   renderer: {
