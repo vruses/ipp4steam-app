@@ -1,4 +1,5 @@
 import { ipcMain, BrowserWindow } from 'electron'
+import { main } from '@main/script'
 
 function registerWindowIpc(win: BrowserWindow): void {
   ipcMain.on('window-close', () => {
@@ -6,6 +7,7 @@ function registerWindowIpc(win: BrowserWindow): void {
   })
 
   ipcMain.on('window-maximize', () => {
+    main()
     if (win.isMaximized()) {
       win.unmaximize()
     } else {
