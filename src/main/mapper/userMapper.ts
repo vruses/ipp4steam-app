@@ -1,5 +1,6 @@
 import type { UserInfo, LoginRes, User } from '@preload/types/user'
 import prisma from '@main/mapper/prisma'
+import type { Prisma } from '@prisma/client'
 
 // 查询所有用户信息
 const queryAllUserInfo = async (): Promise<UserInfo[]> => {
@@ -88,26 +89,47 @@ const updateAllUserStatus = async (resList: User[]): Promise<User[]> => {
   return failedUserList
 }
 
-// 更新用户订阅,返回当前用户订阅列表
-const updateUserSubs = async (steamID: bigint): Promise<string[]> => {
+// 更新用户订阅,先删除后插入，返回当前用户订阅数量
+const updateUserSubs = async (
+  steamID: bigint,
+  proxynameList: string[]
+): Promise<Prisma.BatchPayload> => {
+  // 查询userid
   const user = await prisma.user.findUnique({
     where: { steamID },
     select: { id: true }
   })
-  const res = await prisma.userProxy.findMany({
-    where: { userId: user?.id },
-    select: {
-      proxy: {
-        select: {
-          configName: true
-        }
+  if (!user?.id) return { count: 0 }
+  // 查询目标proxyid列表
+  const targetProxies = await prisma.proxy.findMany({
+    where: {
+      configName: {
+        in: proxynameList
       }
+    },
+    select: {
+      id: true
     }
   })
-  const subList = res.map((item) => {
-    return item.proxy.configName
+  // 映射成user-proxy对象数组
+  const userProxies = targetProxies.map((proxy) => {
+    return {
+      userId: user?.id,
+      proxyId: proxy.id
+    }
   })
-  return subList
+  // 删除userid下的所有proxy
+  const deleteProxies = prisma.userProxy.deleteMany({
+    where: {
+      userId: user.id
+    }
+  })
+  // 插入userid-proxyid
+  const insertUPId = prisma.userProxy.createMany({
+    data: userProxies
+  })
+  const res = await prisma.$transaction([deleteProxies, insertUPId])
+  return res[1]
 }
 
 // 删除用户
