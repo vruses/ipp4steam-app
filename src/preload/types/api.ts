@@ -21,8 +21,9 @@ export interface IUser {
 export interface IProxy {
   // 查询所有的代理
   queryProxyList: () => Promise<ResultType<Proxy[]>>
-  //增加，删除代理时调用(数据量较少，变更一个更新全部)，返回更改后的所有代理
-  updateProxyList: (proxyList: Proxy[]) => Promise<ResultType<Proxy[]>>
+  //增加，删除代理，返回更改后的所有代理
+  deleteProxy: (proxyName: string) => Promise<ResultType<Proxy[]>>
+  addProxy: (proxy: Proxy) => Promise<ResultType<Proxy[]>>
 }
 export interface IMonitor {
   // 更新查询间隔
