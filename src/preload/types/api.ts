@@ -22,8 +22,8 @@ export interface IProxy {
   // 查询所有的代理
   queryProxyList: () => Promise<ResultType<Proxy[]>>
   //增加，删除代理，返回更改后的所有代理
-  deleteProxy: (proxyName: string) => Promise<ResultType<Proxy[]>>
-  addProxy: (proxy: Proxy) => Promise<ResultType<Proxy[]>>
+  deleteProxy: (proxyName: string) => Promise<ResultType<string>>
+  addProxy: (proxy: Proxy) => Promise<ResultType<string>>
 }
 export interface IMonitor {
   // 更新查询间隔
