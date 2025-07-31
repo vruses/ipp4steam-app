@@ -64,18 +64,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto mt-1 p-2 shadow-md rounded-lg">
+  <div class="max-w-4xl mx-auto mt-1 p-2 rounded-lg">
     <!-- 标题 -->
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold text-gray-800 mb-2 pl-2">代理配置</h1>
       <ProxyDrawer @add-proxy="handleAddProxy">
         <template #trigger>
-          <Button
-            variant="outline"
-            class="border-gray-300 text-gray-700 hover:border-gray-500 hover:text-black"
-          >
-            <Plus />添加配置
-          </Button>
+          <Button variant="outline"> <Plus />添加配置 </Button>
         </template>
       </ProxyDrawer>
     </div>
@@ -98,7 +93,7 @@ onMounted(() => {
 
           <!-- 删除按钮 -->
           <TagsInputItemDelete
-            class="cursor-pointer hover:text-red-500 transition duration-200"
+            class="cursor-pointer hover:text-destructive transition duration-200"
             @click="onDelItem(item[0])"
           >
             <BadgeX class="w-3 h-3" />

@@ -11,12 +11,12 @@ import Logger from './right/Logger.vue'
     <div class="flex h-full gap-4 px-4 pb-4">
       <!-- 左边区域 -->
       <div class="flex w-1/2 flex-col gap-4 h-full">
-        <div class="flex-1 rounded-xl bg-muted/50"><Proxy /></div>
-        <div class="flex-2 rounded-xl bg-muted/50"><DataTable /></div>
-        <div class="flex-2 rounded-xl bg-muted/50"><Monitor /></div>
+        <div class="flex-1 rounded-xl bg-muted/50 shadow-sm"><Proxy /></div>
+        <div class="flex-2 rounded-xl bg-muted/50 shadow-sm"><DataTable /></div>
+        <div class="flex-2 rounded-xl bg-muted/50 shadow-sm"><Monitor /></div>
       </div>
       <!-- 右边区域 -->
-      <div class="w-1/2 h-full rounded-xl bg-muted/50 p-4 overflow-y-auto">
+      <div class="w-1/2 h-full rounded-xl bg-muted/50 p-4 overflow-y-auto shadow-sm">
         <div class="h-full whitespace-pre-wrap font-mono text-sm">
           <Logger />
         </div>
