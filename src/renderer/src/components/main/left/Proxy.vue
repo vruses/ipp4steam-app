@@ -12,19 +12,55 @@ import ProxyDrawer from './ProxyDrawer.vue'
 import type { Proxy } from '@renderer/types/proxy'
 import { useProxyStore } from '@renderer/stores/proxy'
 import { BadgeX, Plus } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
+import { toast } from 'vue-sonner'
 
 const proxyMap = useProxyStore().proxyMap
+const fetchProxyList = useProxyStore().fetchProxyList
+const addProxy = useProxyStore().addProxy
+const deleteProxy = useProxyStore().deleteProxy
 const proxyList = computed(() => [...proxyMap])
 // 处理从 ProxyDrawer 添加新的代理配置
 const handleAddProxy = (newProxy: Proxy): void => {
-  proxyMap.set(newProxy.proxyConfigName, newProxy.proxyData)
+  addProxy(newProxy)
+    .then((result) => {
+      result.code === 0
+        ? toast.success('信息提示', {
+            description: `添加订阅 ${result.data} 成功！`
+          })
+        : toast.warning('信息提示', {
+            description: `添加订阅 ${result.data} 失败！`
+          })
+    })
+    .catch(() => {
+      toast.error('信息提示', {
+        description: `操作失败！`
+      })
+    })
 }
 
 // 删除指定name的proxy
-const onDelItem = (name: string): void => {
-  proxyMap.delete(name)
+const onDelItem = async (name: string): Promise<void> => {
+  deleteProxy(name)
+    .then((result) => {
+      result.code === 0
+        ? toast.success('信息提示', {
+            description: `删除订阅 ${result.data} 成功！`
+          })
+        : toast.warning('信息提示', {
+            description: `删除订阅 ${result.data} 失败！`
+          })
+    })
+    .catch(() => {
+      toast.error('信息提示', {
+        description: `操作失败！`
+      })
+    })
 }
+
+onMounted(() => {
+  fetchProxyList()
+})
 </script>
 
 <template>

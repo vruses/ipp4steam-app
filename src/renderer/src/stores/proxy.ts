@@ -1,43 +1,37 @@
 import { defineStore } from 'pinia'
 import type { Proxy, ProxyMap } from '@renderer/types/proxy'
+import type { ResultType } from '@renderer/types/api'
 import { reactive } from 'vue'
 
 export const useProxyStore = defineStore('proxy', () => {
-  // 等待node读取配置文件
-  const data: Array<Proxy> = [
-    {
-      proxyConfigName: 'f按速度',
-      proxyData: {
-        proxyLink: 'string',
-        targetLink: 'string',
-        requestType: 'get'
-      }
-    },
-    {
-      proxyConfigName: '拉拉肥',
-      proxyData: {
-        proxyLink: 'string',
-        targetLink: 'string',
-        requestType: 'get'
-      }
-    },
-    {
-      proxyConfigName: '纪律链接',
-      proxyData: {
-        proxyLink: 'string',
-        targetLink: 'string',
-        requestType: 'get'
-      }
-    }
-  ]
   const proxyMap = reactive<ProxyMap>(new Map())
-  for (const d of data) {
-    proxyMap.set(d.proxyConfigName, d.proxyData)
+  // 页面挂载时请求数据
+  const fetchProxyList = (): void => {
+    window.proxyApi.queryProxyList().then((res) => {
+      for (const d of res.data) {
+        proxyMap.set(d.proxyConfigName, d.proxyData)
+      }
+    })
   }
-  // window.api.queryProxyList().then((res) => {
-  //   for (const proxy of res as Proxy[]) {
-  //     proxyList.push(proxy)
-  //   }
-  // })
-  return { proxyMap }
+  // 添加新的代理
+  const addProxy = (proxy: Proxy): Promise<ResultType<string>> => {
+    // 数据写入成功时返回proxy名称
+    return window.proxyApi.addProxy(proxy).then((res) => {
+      if (res.code === 0) {
+        proxyMap.set(proxy.proxyConfigName, proxy.proxyData)
+      }
+      return res
+    })
+  }
+  // 删除代理
+  const deleteProxy = (proxyName: string): Promise<ResultType<string>> => {
+    // 数据删除成功时返回被删除proxy名称
+    return window.proxyApi.deleteProxy(proxyName).then((res) => {
+      if (res.code === 0) {
+        proxyMap.delete(proxyName)
+      }
+      return res
+    })
+  }
+  return { proxyMap, fetchProxyList, addProxy, deleteProxy }
 })
