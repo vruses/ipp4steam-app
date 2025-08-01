@@ -19,3 +19,4 @@ export const proxyMapSchema = z.map(proxyConfigNameSchema, proxyDataSchema)
 export type ProxyData = z.infer<typeof proxyDataSchema>
 export type Proxy = z.infer<typeof proxySchema>
 export type ProxyMap = z.infer<typeof proxyMapSchema>
+export type FlatProxy = ProxyData & { configName: string }

@@ -1,4 +1,5 @@
 import type { Proxy } from '@preload/types/proxy'
+import type { ProxyUsersTree } from '@preload/types/user-proxy'
 import prisma from '@main/mapper/prisma'
 
 // 查询所有的proxy
@@ -24,7 +25,7 @@ const queryAllProxies = async (): Promise<Proxy[]> => {
 }
 
 // 删除proxy，返回被删除的proxyName
-const deleteProxy = async (proxyName: string): Promise<string> => {
+const deleteProxyByName = async (proxyName: string): Promise<string> => {
   const proxy = await prisma.proxy.delete({
     where: {
       configName: proxyName
@@ -54,4 +55,62 @@ const insertProxy = async (proxy: Proxy): Promise<string> => {
   return result.configName
 }
 
-export { queryAllProxies, deleteProxy, insertProxy }
+// 查询所有proxy->users->proxies
+const queryProxiesWithUserProxies = async (): Promise<ProxyUsersTree[]> => {
+  // 查询 type = 'get' 的 proxy
+  const getProxies = await prisma.proxy.findMany({
+    where: {
+      requestType: 'get'
+    },
+    select: {
+      configName: true,
+      proxyLink: true,
+      targetLink: true,
+      requestType: true,
+      users: {
+        select: {
+          user: {
+            select: {
+              steamID: true,
+              cookie: true,
+              proxies: {
+                where: {
+                  proxy: {
+                    requestType: 'post'
+                  }
+                },
+                select: {
+                  proxy: {
+                    select: {
+                      configName: true,
+                      proxyLink: true,
+                      targetLink: true,
+                      requestType: true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  })
+
+  // 转化为p-u-p树
+  const upTree = getProxies.map((proxy) => ({
+    configName: proxy.configName,
+    proxyLink: proxy.proxyLink,
+    targetLink: proxy.targetLink,
+    requestType: proxy.requestType,
+    users: proxy.users.map(({ user }) => ({
+      steamID: user.steamID,
+      cookie: user.cookie,
+      proxies: user.proxies.map((p) => p.proxy)
+    }))
+  }))
+
+  return upTree
+}
+
+export { queryAllProxies, deleteProxyByName, insertProxy, queryProxiesWithUserProxies }
