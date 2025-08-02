@@ -1,6 +1,6 @@
 import axios, {
   type InternalAxiosRequestConfig,
-  AxiosError,
+  type AxiosError,
   type AxiosInstance,
   type AxiosResponse
 } from 'axios'
