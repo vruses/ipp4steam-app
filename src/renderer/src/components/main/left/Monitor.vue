@@ -11,17 +11,20 @@ import { ScrollArea } from '@renderer/components/ui/scroll-area'
 import { Separator } from '@renderer/components/ui/separator'
 import { useMonitorStore } from '@renderer/stores/monitor'
 import { debounce } from 'lodash-es'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { MonitorPause, MonitorPlay } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
+import { storeToRefs } from 'pinia'
 
 const store = useMonitorStore()
 const monitoringActive = computed(() => store.monitoringActive)
-const updateInterval = store.updateInterval
-const updateMonitorStatus = store.updateMonitorStatus
+
+const { updateInterval, updateMonitorStatus, updatePrice, getMonitorConfig } = useMonitorStore()
+
+const { news, expectedPrice, queryInterval } = storeToRefs(useMonitorStore())
 
 // 更新监控频率
-const handleInput = (queryInterval: number): void => {
+const handleIntervalInput = (queryInterval: number): void => {
   updateInterval(queryInterval)
     ?.then((result) => {
       result.code === 0
@@ -38,7 +41,32 @@ const handleInput = (queryInterval: number): void => {
       })
     })
 }
-const debounceHandleInput = debounce(handleInput, 1000)
+
+// 更新出价
+const handlePriceInput = (price: number): void => {
+  updatePrice(price)
+    ?.then((result) => {
+      result.code === 0
+        ? toast.success('信息提示', {
+            description: `修改价格 €${result.data} 成功！`
+          })
+        : toast.warning('信息提示', {
+            description: `修改价格 €${result.data} 失败！`
+          })
+    })
+    .catch(() => {
+      toast.error('信息提示', {
+        description: `操作失败！`
+      })
+    })
+}
+
+const debounceHandleIntervalInput = debounce(handleIntervalInput, 1000, {
+  leading: true // 立即执行
+})
+const debounceHandlePriceInput = debounce(handlePriceInput, 1000, {
+  leading: true // 立即执行
+})
 
 // 更新监控状态
 const handleMonitorClick = (): void => {
@@ -58,7 +86,10 @@ const handleMonitorClick = (): void => {
       })
     })
 }
-const tags = Array.from({ length: 3 }).map((_, i, a) => `v1.2.0-beta.${a.length - i}`)
+
+onMounted(() => {
+  getMonitorConfig()
+})
 </script>
 
 <template>
@@ -68,14 +99,42 @@ const tags = Array.from({ length: 3 }).map((_, i, a) => `v1.2.0-beta.${a.length 
     <div class="flex space-x-6">
       <!-- 左侧：间隔和按钮垂直排列，占30% -->
       <div class="w-3/10 space-y-5">
-        <!-- 间隔输入 -->
+        <!-- 间隔/出价输入 -->
         <div>
-          <label for="userInput" class="block text-sm font-bold text-gray-700 mb-1">间隔/ms</label>
+          <label for="userInput" class="block text-sm font-bold text-gray-700 mb-1"
+            >间隔/出价</label
+          >
           <NumberField
-            id="age"
-            :default-value="18"
+            id="interval"
+            v-model="queryInterval"
             :min="0"
-            @update:model-value="debounceHandleInput"
+            :format-options="{
+              style: 'unit',
+              unit: 'millisecond',
+              unitDisplay: 'short'
+            }"
+            @update:model-value="debounceHandleIntervalInput"
+          >
+            <NumberFieldContent>
+              <NumberFieldDecrement />
+              <NumberFieldInput />
+              <NumberFieldIncrement />
+            </NumberFieldContent>
+          </NumberField>
+        </div>
+        <div>
+          <NumberField
+            id="price"
+            v-model="expectedPrice"
+            :min="0"
+            :step="0.01"
+            :format-options="{
+              style: 'currency',
+              currency: 'EUR',
+              currencyDisplay: 'symbol',
+              currencySign: 'accounting'
+            }"
+            @update:model-value="debounceHandlePriceInput"
           >
             <NumberFieldContent>
               <NumberFieldDecrement />
@@ -87,9 +146,9 @@ const tags = Array.from({ length: 3 }).map((_, i, a) => `v1.2.0-beta.${a.length 
 
         <!-- 监控按钮 -->
         <div>
-          <label class="block text-sm font-bold text-gray-700 mb-1">监控</label>
           <Button
             :variant="monitoringActive ? 'destructive' : 'default'"
+            size="sm"
             class="w-full"
             @click="handleMonitorClick"
           >
@@ -106,7 +165,7 @@ const tags = Array.from({ length: 3 }).map((_, i, a) => `v1.2.0-beta.${a.length 
           <div class="p-4">
             <h4 class="mb-4 text-sm font-medium leading-none">当前订阅信息</h4>
 
-            <div v-for="tag in tags" :key="tag">
+            <div v-for="tag in news" :key="tag">
               <div class="text-sm">
                 {{ tag }}
               </div>

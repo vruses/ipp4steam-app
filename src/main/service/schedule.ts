@@ -1,11 +1,12 @@
 import { ToadScheduler, Task, LongIntervalJob } from 'toad-scheduler'
 import { getOrderList, heartbeat, useHttpClientFactory } from '@main/service/client'
 import { flattenDeep, uniqueId } from 'lodash-es'
+import { getQueryIntreval, setQueryIntreval } from '@main/service/store'
 
 // 任务调度器
 const scheduler = new ToadScheduler()
 let schedulerActive = false
-let getInterval = 1000
+let getInterval = getQueryIntreval()
 const postInterval = 1000
 
 // 创建任务，返回扁平化的任务列表
@@ -72,6 +73,7 @@ const updateAllJobs = (): void => {
 // 设置调度器任务间隔
 const setScheduleInterval = async (interval: number): Promise<number> => {
   getInterval = interval
+  setQueryIntreval(interval)
   console.log('intreval', interval)
   await updateAllJobs()
   return getInterval

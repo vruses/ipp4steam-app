@@ -32,6 +32,10 @@ export interface IMonitor {
   updateMonitorStatus: (status: boolean) => Promise<ResultType<boolean>>
   // 获取新消息
   ReceiveNews: (callback: (value: unknown) => void) => void
+  // 更新出价
+  updatePrice: (price: number) => Promise<ResultType<number>>
+  // 读取配置文件
+  getMonitorConfig: () => Promise<ResultType<{ queryInterval: number; expectedPrice: number }>>
 }
 export interface IWindow {
   requestWindowClose: () => void

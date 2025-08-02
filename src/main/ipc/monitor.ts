@@ -1,14 +1,60 @@
-import { BrowserWindow, ipcMain } from 'electron'
-import { updateIntreval, updateMonitorStatus } from '@main/service/monitor'
+import { ipcMain } from 'electron'
+import { updateIntreval, updateMonitorStatus, updatePrice, getConfig } from '@main/service/monitor'
 
-function registerMonitorIpc(win: BrowserWindow): void {
+function registerMonitorIpc(): void {
   ipcMain.handle('update-intreval', (_event, intreval: number) => {
     return updateIntreval(intreval)
   })
   ipcMain.handle('update-monitor-status', (_event, status: boolean) => {
     return updateMonitorStatus(status)
   })
-  // TODO:实现主进程消息推送
-  // win.webContents.send('receive-news', false)
+  ipcMain.handle('update-price', (_event, price: number) => {
+    return updatePrice(price)
+  })
+  // 初始化配置
+  ipcMain.handle('get-config', () => {
+    return getConfig()
+  })
 }
-export default registerMonitorIpc
+
+type Callback<T> = (data: T) => void
+
+class Observer<T> {
+  private subscribers: Map<string, Callback<T>[]>
+
+  constructor() {
+    this.subscribers = new Map()
+  }
+
+  subscribe(event: string, callback: Callback<T>): void {
+    if (!this.subscribers.has(event)) {
+      this.subscribers.set(event, [])
+    }
+    this.subscribers.get(event)!.push(callback)
+  }
+
+  unsubscribe(event: string, callback: Callback<T>): void {
+    if (this.subscribers.has(event)) {
+      const callbacks = this.subscribers.get(event)!
+      const index = callbacks.indexOf(callback)
+      if (index > -1) {
+        callbacks.splice(index, 1)
+      }
+    }
+  }
+
+  notify(event: string, data: T): void {
+    if (this.subscribers.has(event)) {
+      this.subscribers.get(event)!.forEach((callback) => {
+        try {
+          callback(data)
+        } catch (error) {
+          console.error('Observer callback error:', error)
+        }
+      })
+    }
+  }
+}
+
+const observer = new Observer()
+export { observer, registerMonitorIpc }

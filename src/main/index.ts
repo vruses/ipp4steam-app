@@ -5,7 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import registerWindowIpc from './ipc/window'
 import prisma from '@main/mapper/prisma'
 import registerProxyIpc from '@main/ipc/proxy'
-import registerMonitorIpc from '@main/ipc/monitor'
+import { registerMonitorIpc, observer } from '@main/ipc/monitor'
 
 function createWindow(): void {
   // Create the browser window.
@@ -33,7 +33,13 @@ function createWindow(): void {
   registerProxyIpc()
 
   // 注册monitor事件监听
-  registerMonitorIpc(mainWindow)
+  registerMonitorIpc()
+  // 订阅业务事件
+  observer.subscribe('notify:news', (data) => {
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('receive-news', data)
+    }
+  })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)

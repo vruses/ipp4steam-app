@@ -4,23 +4,32 @@ import { queryProxiesWithUserProxies } from '@main/mapper/proxyMapper'
 import type { UserAuthAndProxies, ExtendedFlatProxy } from '@preload/types/user-proxy'
 import type { AxiosHeaders } from 'axios'
 import type { ItemInfo, ItemInfoLog, ItemOrdersInfo } from '@main/service/proxy/order'
+import { notifyNews } from '@main/service/monitor'
+import { getPrice, setPrice } from '@main/service/store'
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P]
 }
 // 创建请求客户端
 const createHttpClient = (proxy_url: string, headers?: DeepPartial<AxiosHeaders>): HttpClient => {
-  // 只有当proxy_url存在时才创建代理
-  const proxyAgent = proxy_url
-    ? new HttpsProxyAgent(proxy_url, {
-        keepAlive: true
-      })
-    : null
-  const httpClient = new HttpClient({
-    httpsAgent: proxyAgent,
-    headers
-  })
-  return httpClient
+  try {
+    // 只有当proxy_url存在时才创建代理
+    const proxyAgent = proxy_url
+      ? new HttpsProxyAgent(proxy_url, {
+          keepAlive: true
+        })
+      : null
+    const httpClient = new HttpClient({
+      httpsAgent: proxyAgent,
+      headers
+    })
+    return httpClient
+  } catch (error) {
+    console.log(error)
+    return new HttpClient({
+      headers
+    })
+  }
 }
 
 // 扩展proxy，将代理客户端添加至代理对象身上,以及代理对象订阅用户对象上
@@ -70,8 +79,12 @@ const extractCookieValue = (cookie: string, name: string): string => {
 // itemid与itemname的映射
 const marketHashNameMap = {
   176003279: 'Reaper Mask',
-  176003275: 'Survivalist Slacks'
+  176003275: 'Survivalist Slacks',
+  // 测试链接
+  175882811: 'Combat Pants (Blue)'
 }
+
+let price_total = getPrice()
 
 // 查询订单列表：实时记录与更新列表信息，在获取到关键信息时发送创建订单请求
 const getOrderList = async (proxy: ProxyUsersTreeX): Promise<void> => {
@@ -110,7 +123,9 @@ const getOrderList = async (proxy: ProxyUsersTreeX): Promise<void> => {
           itemName: marketHashNameMap[itemID],
           orderGraph: targetCell
         }
-        console.log(itemInfoLog)
+        // console.log(itemInfoLog)
+        notifyNews(itemInfoLog)
+        console.log('get')
       }
     })
     .catch((err) => {
@@ -124,6 +139,7 @@ const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string):
   if (!proxy.client) {
     return
   }
+  console.log(price_total)
   proxy.client
     .post(proxy.targetLink, {
       sessionid,
@@ -131,7 +147,7 @@ const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string):
       // PUBG game的appid
       appid: 578080,
       market_hash_name: hashName,
-      price_total: 1800,
+      price_total,
       tradefee_tax: 0,
       quantity: 1,
       billing_state: '',
@@ -149,7 +165,8 @@ const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string):
       // @ts-ignore 在成功创建订单后移除client防止重复发送订单请求
       proxy.client = null
       // 发送客户端信息
-      console.log(res)
+      // console.log(res)
+      console.log('post')
     })
     .catch((err) => {
       // 发送客户端信息
@@ -159,7 +176,22 @@ const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string):
 
 // TODO:登录检测，持续上报请求心跳
 const heartbeat = (proxy: ProxyType): void => {
-  console.log(proxy)
+  // console.log(proxy)
+  notifyNews('post')
+  console.log('post')
 }
 
-export { useHttpClientFactory, getOrderList, postOrder, heartbeat, type ProxyUsersTreeX }
+const setExpectedPrice = (price: number): number => {
+  price_total = price
+  setPrice(price)
+  return price_total
+}
+
+export {
+  useHttpClientFactory,
+  getOrderList,
+  postOrder,
+  heartbeat,
+  setExpectedPrice,
+  type ProxyUsersTreeX
+}

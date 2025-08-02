@@ -16,5 +16,13 @@ export const monitorApi: IMonitor = {
   ReceiveNews: (callback) => {
     const channelName = 'receive-news'
     ipcRenderer.on(channelName, (_event, value: boolean) => callback(value))
+  },
+  updatePrice: (price) => {
+    const channelName = 'update-price'
+    return ipcRenderer.invoke(channelName, price)
+  },
+  getMonitorConfig: () => {
+    const channelName = 'get-config'
+    return ipcRenderer.invoke(channelName)
   }
 }
