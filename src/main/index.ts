@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import registerWindowIpc from './ipc/window'
 import prisma from '@main/mapper/prisma'
+import registerProxyIpc from '@main/ipc/proxy'
 
 function createWindow(): void {
   // Create the browser window.
@@ -26,6 +27,9 @@ function createWindow(): void {
   })
   // 注册窗口监听
   registerWindowIpc(mainWindow)
+
+  // 注册proxy事件监听
+  registerProxyIpc()
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
