@@ -13,19 +13,50 @@ import { useMonitorStore } from '@renderer/stores/monitor'
 import { debounce } from 'lodash-es'
 import { computed } from 'vue'
 import { MonitorPause, MonitorPlay } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
 
 const store = useMonitorStore()
 const monitoringActive = computed(() => store.monitoringActive)
 const updateInterval = store.updateInterval
 const updateMonitorStatus = store.updateMonitorStatus
-const debounceUpdateInterval = debounce(updateInterval, 1000)
+
 // 更新监控频率
 const handleInput = (queryInterval: number): void => {
-  debounceUpdateInterval(queryInterval)
+  updateInterval(queryInterval)
+    ?.then((result) => {
+      result.code === 0
+        ? toast.success('信息提示', {
+            description: `修改间隔 ${result.data}ms 成功！`
+          })
+        : toast.warning('信息提示', {
+            description: `修改间隔 ${result.data}ms 失败！`
+          })
+    })
+    .catch(() => {
+      toast.error('信息提示', {
+        description: `操作失败！`
+      })
+    })
 }
+const debounceHandleInput = debounce(handleInput, 1000)
+
 // 更新监控状态
 const handleMonitorClick = (): void => {
   updateMonitorStatus()
+    .then((result) => {
+      result.code === 0
+        ? toast.success('信息提示', {
+            description: `监控成功${result.data ? '开启' : '关闭'}！`
+          })
+        : toast.warning('信息提示', {
+            description: `操作监控失败！`
+          })
+    })
+    .catch(() => {
+      toast.error('信息提示', {
+        description: `操作失败！`
+      })
+    })
 }
 const tags = Array.from({ length: 3 }).map((_, i, a) => `v1.2.0-beta.${a.length - i}`)
 </script>
@@ -40,7 +71,12 @@ const tags = Array.from({ length: 3 }).map((_, i, a) => `v1.2.0-beta.${a.length 
         <!-- 间隔输入 -->
         <div>
           <label for="userInput" class="block text-sm font-bold text-gray-700 mb-1">间隔/ms</label>
-          <NumberField id="age" :default-value="18" :min="0" @update:model-value="handleInput">
+          <NumberField
+            id="age"
+            :default-value="18"
+            :min="0"
+            @update:model-value="debounceHandleInput"
+          >
             <NumberFieldContent>
               <NumberFieldDecrement />
               <NumberFieldInput />

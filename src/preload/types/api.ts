@@ -27,11 +27,11 @@ export interface IProxy {
 }
 export interface IMonitor {
   // 更新查询间隔
-  updateInterval: (interval: number) => Promise<ResultType<string>>
+  updateInterval: (interval: number) => Promise<ResultType<number>>
   // 启动或关闭监听
-  updateMonitorStatus: () => Promise<ResultType<string>>
+  updateMonitorStatus: (status: boolean) => Promise<ResultType<boolean>>
   // 获取新消息
-  ReceiveNews: () => Promise<ResultType<string>>
+  ReceiveNews: (callback: (value: unknown) => void) => void
 }
 export interface IWindow {
   requestWindowClose: () => void

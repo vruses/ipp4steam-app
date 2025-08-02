@@ -2,7 +2,7 @@ import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { windowApi } from './api/window'
 import { proxyApi } from '@preload/api/proxy'
-
+import { monitorApi } from '@preload/api/monitor'
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -11,6 +11,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('windowApi', windowApi)
     contextBridge.exposeInMainWorld('proxyApi', proxyApi)
+    contextBridge.exposeInMainWorld('monitorApi', monitorApi)
   } catch (error) {
     console.error(error)
   }
@@ -23,4 +24,6 @@ if (process.contextIsolated) {
   window.windowApi = windowApi
   // @ts-ignore (define in dts)
   window.proxyApi = proxyApi
+  // @ts-ignore (define in dts)
+  window.monitorApi = monitorApi
 }

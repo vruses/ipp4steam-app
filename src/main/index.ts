@@ -5,6 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import registerWindowIpc from './ipc/window'
 import prisma from '@main/mapper/prisma'
 import registerProxyIpc from '@main/ipc/proxy'
+import registerMonitorIpc from '@main/ipc/monitor'
 
 function createWindow(): void {
   // Create the browser window.
@@ -30,6 +31,9 @@ function createWindow(): void {
 
   // 注册proxy事件监听
   registerProxyIpc()
+
+  // 注册monitor事件监听
+  registerMonitorIpc(mainWindow)
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)

@@ -4,18 +4,23 @@ import { flattenDeep, uniqueId } from 'lodash-es'
 
 // 任务调度器
 const scheduler = new ToadScheduler()
+let schedulerActive = false
+let getInterval = 1000
+const postInterval = 1000
 
 // 创建任务，返回扁平化的任务列表
 const createJobs = async (): Promise<LongIntervalJob[]> => {
   const proxies = await useHttpClientFactory()
   // 根据用户和代理的树形关系创建对应爬虫任务
   const jobArray = proxies.map((proxy) => {
-    const task = new Task(uniqueId('getTask'), () => getOrderList(proxy))
-    const job = new LongIntervalJob({ milliseconds: 1000 }, task)
+    const task = new Task('getTask', () => getOrderList(proxy))
+    const job = new LongIntervalJob({ milliseconds: getInterval }, task, { id: uniqueId('getJob') })
     const job2Array = proxy.users.map((user) => {
       return user.proxies.map((proxy2) => {
-        const task = new Task(uniqueId('postTask'), () => heartbeat(proxy2))
-        const job = new LongIntervalJob({ milliseconds: 2000 }, task)
+        const task = new Task('postTask', () => heartbeat(proxy2))
+        const job = new LongIntervalJob({ milliseconds: postInterval }, task, {
+          id: uniqueId('postJob')
+        })
         return job
       })
     })
@@ -31,7 +36,6 @@ const clearAllJobs = (): void => {
     scheduler.removeById(job.id)
   }
 }
-
 // 开始所有调度器里的任务
 const startAllJobs = (): void => {
   const allJobs = scheduler.getAllJobs()
@@ -58,11 +62,33 @@ const updateAllJobs = (): void => {
       for (const job of jobs) {
         scheduler.addLongIntervalJob(job)
       }
-      // stopAllJobs()
+      schedulerActive ? startAllJobs() : stopAllJobs()
     })
     .catch((e) => {
       console.log(e)
     })
 }
 
-export { createJobs, startAllJobs, stopAllJobs, updateAllJobs }
+// 设置调度器任务间隔
+const setScheduleInterval = async (interval: number): Promise<number> => {
+  getInterval = interval
+  console.log('intreval', interval)
+  await updateAllJobs()
+  return getInterval
+}
+// 更新调度器状态
+const updateScheduleStatus = (status: boolean): boolean => {
+  schedulerActive = status
+  console.log('status', status)
+  schedulerActive ? startAllJobs() : stopAllJobs()
+  return schedulerActive
+}
+
+export {
+  createJobs,
+  startAllJobs,
+  stopAllJobs,
+  updateAllJobs,
+  setScheduleInterval,
+  updateScheduleStatus
+}
