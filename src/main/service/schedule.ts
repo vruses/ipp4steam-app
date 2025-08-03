@@ -1,5 +1,6 @@
 import { ToadScheduler, Task, LongIntervalJob } from 'toad-scheduler'
-import { getOrderList, heartbeat, useHttpClientFactory } from '@main/service/client'
+import { useHttpClientFactory } from '@main/service/request/client'
+import { getOrderList, heartbeat } from '@main/service/request/requestService'
 import { flattenDeep, uniqueId } from 'lodash-es'
 import { getQueryIntreval, setQueryIntreval } from '@main/service/store'
 
@@ -7,7 +8,7 @@ import { getQueryIntreval, setQueryIntreval } from '@main/service/store'
 const scheduler = new ToadScheduler()
 let schedulerActive = false
 let getInterval = getQueryIntreval()
-const postInterval = 1000
+const postInterval = 5000
 
 // 创建任务，返回扁平化的任务列表
 const createJobs = async (): Promise<LongIntervalJob[]> => {
@@ -15,6 +16,7 @@ const createJobs = async (): Promise<LongIntervalJob[]> => {
   // 根据用户和代理的树形关系创建对应爬虫任务
   const jobArray = proxies.map((proxy) => {
     const task = new Task('getTask', () => getOrderList(proxy))
+    // const task = new Task('getTask', () => {})
     const job = new LongIntervalJob({ milliseconds: getInterval }, task, { id: uniqueId('getJob') })
     const job2Array = proxy.users.map((user) => {
       return user.proxies.map((proxy2) => {

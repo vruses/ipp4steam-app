@@ -1,7 +1,7 @@
 import { setScheduleInterval, updateScheduleStatus } from '@main/service/schedule'
 import type { ResultType } from '@preload/types/api'
 import { observer } from '@main/ipc/monitor'
-import { setExpectedPrice } from '@main/service/client'
+import { setExpectedPrice } from '@main/service/request/requestService'
 import { getMonitorConfig } from '@main/service/store'
 
 // 更新调度器执行间隔
