@@ -20,7 +20,7 @@ const createJobs = async (): Promise<LongIntervalJob[]> => {
     const job = new LongIntervalJob({ milliseconds: getInterval }, task, { id: uniqueId('getJob') })
     const job2Array = proxy.users.map((user) => {
       return user.proxies.map((proxy2) => {
-        const task = new Task('postTask', () => heartbeat(proxy2))
+        const task = new Task('postTask', () => heartbeat(user, proxy2))
         const job = new LongIntervalJob({ milliseconds: postInterval }, task, {
           id: uniqueId('postJob')
         })

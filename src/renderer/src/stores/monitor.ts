@@ -7,6 +7,7 @@ export const useMonitorStore = defineStore('monitor', () => {
   const monitoringActive = ref(false)
   const expectedPrice = ref(1800)
   const news = reactive<string[]>([])
+  const logs = reactive<string[]>([])
 
   // 更新监控间隔
   const updateInterval = (interval: number): Promise<ResultType<number>> => {
@@ -56,14 +57,21 @@ export const useMonitorStore = defineStore('monitor', () => {
   // 实时更新最新消息
   window.monitorApi.ReceiveNews((value) => {
     news.push(value as string)
-    if (news.length > 6) {
+    if (news.length > 10) {
       news.shift() // 删除最早的一项
     }
   })
-
+  // 实时日志
+  window.monitorApi.heartbeatLogs((value) => {
+    logs.push(value as string)
+    if (logs.length > 500) {
+      logs.shift() // 删除最早的一项
+    }
+  })
   return {
     monitoringActive,
     news,
+    logs,
     queryInterval,
     expectedPrice,
     updateInterval,

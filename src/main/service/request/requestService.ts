@@ -3,6 +3,8 @@ import { notifyNews } from '@main/service/monitorService'
 import { getPrice, setPrice } from '@main/service/store'
 import { extractCookieValue, marketHashNameMap } from '@main/service/request/requestConfig'
 import type { ProxyUsersTreeX, ProxyType } from '@main/service/request/client'
+import { parseUserInfo } from '@main/service/request/htmlParser'
+import { observer } from '@main/ipc/monitor'
 
 let price_total = getPrice()
 
@@ -91,17 +93,36 @@ const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string):
     })
 }
 
-// TODO:登录检测，持续上报请求心跳
-const heartbeat = (proxy: ProxyType): void => {
-  console.log('heartbeat')
+// 登录检测，持续上报请求心跳
+type User = ProxyUsersTreeX['users'][number]
+const heartbeat = (user: User, proxy: ProxyType): void => {
   proxy.client
     .get('https://steamcommunity.com/market')
-    .then(() => {
-      // TODO:用户信息解析
+    .then((res) => {
+      const info = parseUserInfo(res as string)
+      // 登录成功
+      observer.notify('notify:heartbeat-logs', {
+        code: 0,
+        msg: 'success',
+        data: { steamID: user.steamID, loginStatus: 'succeed' }
+      })
+      //当未登录时推送渲染进程消息
+      if (isNaN(info.steamID)) {
+        // 登录失效
+        observer.notify('notify:heartbeat-logs', {
+          code: 0,
+          msg: 'fail',
+          data: { steamID: user.steamID, loginStatus: 'failed' }
+        })
+      }
     })
-    .catch(() => {
-      console.log(429)
-      // console.log('heartbeat', err)
+    .catch((error: { status: number; message: string }) => {
+      // 可能429请求频繁
+      observer.notify('notify:heartbeat-logs', {
+        code: error.status,
+        msg: error.message,
+        data: { steamID: user.steamID, loginStatus: 'failed' }
+      })
     })
 }
 

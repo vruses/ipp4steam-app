@@ -17,6 +17,12 @@ export const monitorApi: IMonitor = {
     const channelName = 'receive-news'
     ipcRenderer.on(channelName, (_event, value: boolean) => callback(value))
   },
+  // 获取登录心跳消息
+  // 获取新消息
+  heartbeatLogs: (callback) => {
+    const channelName = 'heartbeat-logs'
+    ipcRenderer.on(channelName, (_event, value: boolean) => callback(value))
+  },
   updatePrice: (price) => {
     const channelName = 'update-price'
     return ipcRenderer.invoke(channelName, price)

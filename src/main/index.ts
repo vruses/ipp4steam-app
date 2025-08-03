@@ -16,7 +16,7 @@ function createWindow(): void {
     show: false,
     autoHideMenuBar: true,
     // 去除默认窗口
-    // frame: false,
+    frame: false,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
@@ -41,7 +41,12 @@ function createWindow(): void {
       mainWindow.webContents.send('receive-news', data)
     }
   })
-
+  //
+  observer.subscribe('notify:heartbeat-logs', (data) => {
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('heartbeat-logs', data)
+    }
+  })
   // 注册user事件监听
   registerUserIpc()
 
@@ -74,7 +79,7 @@ app.whenReady().then(() => {
   })
 
   // 完全移除菜单（防止 Alt 弹出菜单）
-  // Menu.setApplicationMenu(null)
+  Menu.setApplicationMenu(null)
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
