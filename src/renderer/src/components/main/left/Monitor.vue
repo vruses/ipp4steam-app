@@ -166,7 +166,7 @@ onMounted(() => {
             <h4 class="mb-4 text-sm font-medium leading-none">当前订阅信息</h4>
 
             <div v-for="tag in news" :key="tag">
-              <div class="text-sm">
+              <div class="text-sm odd:bg-red-400 even:bg-white">
                 {{ tag }}
               </div>
               <Separator class="my-2" />

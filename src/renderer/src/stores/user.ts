@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { reactive } from 'vue'
 import type { UserInfo } from '@renderer/types/user'
+import { ResultType } from '@renderer/types/api'
 
 type UserManager = {
   btnStatus: string
@@ -9,24 +10,12 @@ type UserManager = {
 export const useUserStore = defineStore('user', () => {
   const userManager = reactive<UserManager>({
     btnStatus: 'idle',
-    userList: [
-      {
-        steamID: 123,
-        nickname: 'a',
-        loginStatus: 'success',
-        proxynameList: ['a', 'b', 'c', '创建购买单']
-      },
-      {
-        steamID: 456,
-        nickname: 'b',
-        loginStatus: 'failed',
-        proxynameList: ['a', 'b', 'c', '创建购买单']
-      }
-    ]
+    userList: []
   })
   // cookie传给preload,将返回的userinfo传给组件进行信息展示
   const login = async (cookie: string): Promise<UserInfo> => {
     // 调用window.api.requestUserLogin(cookie)返回userinfo
+
     console.log(cookie)
     // document.querySelector('a[data-miniprofile]').href.split('/')[4] steamid
     // document.querySelector('a[data-miniprofile]').textContent nickname
@@ -63,19 +52,45 @@ export const useUserStore = defineStore('user', () => {
     return ['a', 'b', 'c']
   }
   // 更新用户订阅
-  const updateSubscription = (steamID: number, currentList: string[]): void => {
+  const updateSubscription = (
+    steamID: number,
+    currentList: string[]
+  ): Promise<ResultType<{ count: number }>> => {
     const index = userManager.userList.findIndex((value) => {
       return value.steamID === steamID
     })
-    // 注意副作用，会使得其它解构变量丢失引
-    userManager.userList[index].proxynameList = currentList
+    return window.userApi.updateUserSubs(steamID, currentList).then((result) => {
+      if (result.code === 0) {
+        // 注意副作用，会使得其它解构变量丢失引
+        userManager.userList[index].proxynameList = currentList
+      }
+      return result
+    })
   }
+
   // 删除用户
-  const deleteUser = (steamID: number): void => {
-    const index = userManager.userList.findIndex((value) => {
-      return value.steamID === steamID
+  const deleteUser = (steamID: number): Promise<ResultType<string>> => {
+    return window.userApi.deleteUser(steamID).then((result) => {
+      if (result.code === 0) {
+        const index = userManager.userList.findIndex((value) => {
+          return value.steamID === steamID
+        })
+        userManager.userList.splice(index, 1)
+      }
+      return result
     })
-    userManager.userList.splice(index, 1)
   }
-  return { login, hasAllCookiesExpired, updateSubscription, deleteUser, userManager }
+
+  // 查询用户数据
+  const getUserList = (): void => {
+    window.userApi
+      .queryUserList()
+      .then((res) => {
+        if (res.code === 0) {
+          userManager.userList.splice(0, userManager.userList.length, ...res.data)
+        }
+      })
+      .catch(() => {})
+  }
+  return { login, hasAllCookiesExpired, updateSubscription, deleteUser, getUserList, userManager }
 })

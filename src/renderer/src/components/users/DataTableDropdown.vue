@@ -19,6 +19,7 @@ import { useUserStore } from '@renderer/stores/user'
 import { UserInfo } from '@renderer/types/user'
 import { cn } from '@renderer/lib/utils'
 import { computed, watchEffect } from 'vue'
+import { toast } from 'vue-sonner'
 
 const { proxyMap } = useProxyStore()
 const proxyList = computed(() => [...proxyMap])
@@ -49,12 +50,40 @@ const updateSubscription = useUserStore().updateSubscription
 // 关闭菜单完成最终订阅更新时触发
 const onClosingMenu = (): void => {
   updateSubscription(userInfo.steamID, [...currentList])
+    .then((result) => {
+      result.code === 0
+        ? toast.success('信息提示', {
+            description: `更新订阅成功！当前用户订阅数 ${result.data.count}`
+          })
+        : toast.warning('信息提示', {
+            description: `更新用户订阅失败！`
+          })
+    })
+    .catch(() => {
+      toast.error('信息提示', {
+        description: `操作失败！`
+      })
+    })
 }
 // 删除用户
 const deleteUser = useUserStore().deleteUser
 const handleDeleteUser = (): void => {
   // userInfo.steamID
   deleteUser(userInfo.steamID)
+    .then((result) => {
+      result.code === 0
+        ? toast.success('信息提示', {
+            description: `删除用户 ${result.data} 成功！`
+          })
+        : toast.warning('信息提示', {
+            description: `删除用户 ${userInfo.steamID} 失败！`
+          })
+    })
+    .catch(() => {
+      toast.error('信息提示', {
+        description: `操作失败！`
+      })
+    })
 }
 </script>
 

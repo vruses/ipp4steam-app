@@ -14,7 +14,10 @@ export interface IUser {
   // 检查所有用户是否处于登录状态，返回过期的id列表
   hasAllCookiesExpired: () => Promise<ResultType<ExpiredAccounts>>
   // 更新用户订阅，返回当前用户的订阅列表
-  updateUserSubs: (steamID: number, proxynameList: string[]) => Promise<ResultType<string[]>>
+  updateUserSubs: (
+    steamID: number,
+    proxynameList: string[]
+  ) => Promise<ResultType<{ count: number }>>
   // 删除用户,返回用户名
   deleteUser: (steamID: number) => Promise<ResultType<string>>
 }

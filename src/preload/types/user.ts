@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const loginResSchema = z.object({
-  steamID: z.bigint(),
+  steamID: z.number(),
   nickname: z.string(),
   loginStatus: z.enum(['succeed', 'failed'])
 })

@@ -9,7 +9,7 @@ const schema = {
   },
   queryInterval: {
     type: 'number',
-    maximum: 1000,
+    maximum: 10e8,
     minimum: 0,
     default: 200
   }

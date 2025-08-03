@@ -26,10 +26,10 @@ const handleAddProxy = (newProxy: Proxy): void => {
     .then((result) => {
       result.code === 0
         ? toast.success('信息提示', {
-            description: `添加订阅 ${result.data} 成功！`
+            description: `添加配置 ${result.data} 成功！`
           })
         : toast.warning('信息提示', {
-            description: `添加订阅 ${result.data} 失败！`
+            description: `添加配置 ${result.data} 失败！`
           })
     })
     .catch(() => {
@@ -45,10 +45,10 @@ const onDelItem = async (name: string): Promise<void> => {
     .then((result) => {
       result.code === 0
         ? toast.success('信息提示', {
-            description: `删除订阅 ${result.data} 成功！`
+            description: `删除配置 ${result.data} 成功！`
           })
         : toast.warning('信息提示', {
-            description: `删除订阅 ${result.data} 失败！`
+            description: `删除配置 ${result.data} 失败！`
           })
     })
     .catch(() => {

@@ -3,7 +3,7 @@ import { HttpsProxyAgent } from 'https-proxy-agent'
 import { queryProxiesWithUserProxies } from '@main/mapper/proxyMapper'
 import type { UserAuthAndProxies, ExtendedFlatProxy } from '@preload/types/user-proxy'
 import type { AxiosHeaders } from 'axios'
-import type { ItemInfo, ItemInfoLog, ItemOrdersInfo } from '@main/service/proxy/order'
+import type { ItemInfoLog, ItemOrdersInfo } from '@main/service/proxy/order'
 import { notifyNews } from '@main/service/monitor'
 import { getPrice, setPrice } from '@main/service/store'
 
@@ -105,12 +105,12 @@ const getOrderList = async (proxy: ProxyUsersTreeX): Promise<void> => {
           }
         }
         // 用于发送给客户端的对象
-        const itemInfo: ItemInfo = {
+        const itemInfo: ItemInfoLog = {
           itemID,
           itemName: marketHashNameMap[itemID],
-          lowestSellPrice: res.lowest_sell_order
+          orderGraph: res.sell_order_graph[0]
         }
-        console.log(itemInfo)
+        notifyNews(itemInfo)
       } else {
         // 检查是否有订购单
         if (!res.highest_buy_order) return
@@ -121,11 +121,9 @@ const getOrderList = async (proxy: ProxyUsersTreeX): Promise<void> => {
         const itemInfoLog: ItemInfoLog = {
           itemID,
           itemName: marketHashNameMap[itemID],
-          orderGraph: targetCell
+          orderGraph: targetCell ?? res.buy_order_graph[0]
         }
-        // console.log(itemInfoLog)
         notifyNews(itemInfoLog)
-        console.log('get')
       }
     })
     .catch((err) => {
@@ -139,7 +137,6 @@ const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string):
   if (!proxy.client) {
     return
   }
-  console.log(price_total)
   proxy.client
     .post(proxy.targetLink, {
       sessionid,
@@ -147,11 +144,11 @@ const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string):
       // PUBG game的appid
       appid: 578080,
       market_hash_name: hashName,
-      price_total,
+      price_total: price_total * 100,
       tradefee_tax: 0,
       quantity: 1,
       billing_state: '',
-      save_my_address: 1,
+      save_my_address: 0,
       first_name: '1',
       last_name: '1',
       billing_address: '1',
@@ -162,11 +159,11 @@ const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string):
       confirmation: 1
     })
     .then((res) => {
+      console.log(res)
       // @ts-ignore 在成功创建订单后移除client防止重复发送订单请求
       proxy.client = null
       // 发送客户端信息
       // console.log(res)
-      console.log('post')
     })
     .catch((err) => {
       // 发送客户端信息
@@ -177,8 +174,6 @@ const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string):
 // TODO:登录检测，持续上报请求心跳
 const heartbeat = (proxy: ProxyType): void => {
   // console.log(proxy)
-  notifyNews('post')
-  console.log('post')
 }
 
 const setExpectedPrice = (price: number): number => {

@@ -25,7 +25,7 @@ import {
 } from '@renderer/components/ui/table'
 import { columns } from './columns'
 import { Loader2, Clipboard, UserCheck } from 'lucide-vue-next'
-import { reactive, shallowRef, watch } from 'vue'
+import { onMounted, reactive, shallowRef, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { useUserStore } from '@renderer/stores/user'
 import { UserInfo } from '@renderer/types/user'
@@ -35,8 +35,9 @@ const store = useUserStore()
 const userManager = store.userManager
 const userList = userManager.userList
 const data = shallowRef<UserInfo[]>([])
+const getUserList = store.getUserList
 watch(
-  () => userList,
+  () => userManager,
   () => {
     data.value = [...userList]
   },
@@ -89,6 +90,9 @@ const connectingTest = (): void => {
       toast.warning('错误提示', { description: '检查状态出现错误！' })
     })
 }
+onMounted(() => {
+  getUserList()
+})
 </script>
 
 <template>

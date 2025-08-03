@@ -6,6 +6,7 @@ import registerWindowIpc from './ipc/window'
 import prisma from '@main/mapper/prisma'
 import registerProxyIpc from '@main/ipc/proxy'
 import { registerMonitorIpc, observer } from '@main/ipc/monitor'
+import registerUserIpc from '@main/ipc/user'
 
 function createWindow(): void {
   // Create the browser window.
@@ -15,7 +16,7 @@ function createWindow(): void {
     show: false,
     autoHideMenuBar: true,
     // 去除默认窗口
-    frame: false,
+    // frame: false,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
@@ -40,6 +41,9 @@ function createWindow(): void {
       mainWindow.webContents.send('receive-news', data)
     }
   })
+
+  // 注册user事件监听
+  registerUserIpc()
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
@@ -70,7 +74,7 @@ app.whenReady().then(() => {
   })
 
   // 完全移除菜单（防止 Alt 弹出菜单）
-  Menu.setApplicationMenu(null)
+  // Menu.setApplicationMenu(null)
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))

@@ -91,7 +91,7 @@ const updateAllUserStatus = async (resList: User[]): Promise<User[]> => {
 
 // 更新用户订阅,先删除后插入，返回当前用户订阅数量
 const updateUserSubs = async (
-  steamID: bigint,
+  steamID: number,
   proxynameList: string[]
 ): Promise<Prisma.BatchPayload> => {
   // 查询userid
@@ -133,7 +133,7 @@ const updateUserSubs = async (
 }
 
 // 删除用户
-const deleteUser = async (steamID: bigint): Promise<string> => {
+const deleteUser = async (steamID: number): Promise<string> => {
   const user = await prisma.user.delete({
     where: {
       steamID

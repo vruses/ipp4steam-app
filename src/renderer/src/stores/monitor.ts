@@ -56,6 +56,9 @@ export const useMonitorStore = defineStore('monitor', () => {
   // 实时更新最新消息
   window.monitorApi.ReceiveNews((value) => {
     news.push(value as string)
+    if (news.length > 6) {
+      news.shift() // 删除最早的一项
+    }
   })
 
   return {
