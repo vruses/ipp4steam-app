@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron'
 import type { Proxy } from '@preload/types/proxy'
-import { addProxy, deleteProxy, getAllProxies } from '@main/service/proxy'
+import { addProxy, deleteProxy, getAllProxies } from '@main/service/proxyService'
 
 function registerProxyIpc(): void {
   ipcMain.handle('query-proxy-list', async () => {

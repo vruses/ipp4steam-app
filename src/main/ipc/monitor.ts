@@ -1,5 +1,10 @@
 import { ipcMain } from 'electron'
-import { updateIntreval, updateMonitorStatus, updatePrice, getConfig } from '@main/service/monitor'
+import {
+  updateIntreval,
+  updateMonitorStatus,
+  updatePrice,
+  getConfig
+} from '@main/service/monitorService'
 
 function registerMonitorIpc(): void {
   ipcMain.handle('update-intreval', (_event, intreval: number) => {

@@ -5,7 +5,7 @@ import {
   handleQueryUserList,
   handleRequestUserLogin,
   handleUpdateUserSubs
-} from '@main/service/user'
+} from '@main/service/userService'
 function registerUserIpc(): void {
   ipcMain.handle('query-user-list', async () => {
     return await handleQueryUserList()

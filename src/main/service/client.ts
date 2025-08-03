@@ -3,8 +3,8 @@ import { HttpsProxyAgent } from 'https-proxy-agent'
 import { queryProxiesWithUserProxies } from '@main/mapper/proxyMapper'
 import type { UserAuthAndProxies, ExtendedFlatProxy } from '@preload/types/user-proxy'
 import type { AxiosHeaders } from 'axios'
-import type { ItemInfoLog, ItemOrdersInfo } from '@main/service/proxy/order'
-import { notifyNews } from '@main/service/monitor'
+import type { ItemInfoLog, ItemOrdersInfo } from '@main/service/order'
+import { notifyNews } from '@main/service/monitorService'
 import { getPrice, setPrice } from '@main/service/store'
 
 type DeepPartial<T> = {
