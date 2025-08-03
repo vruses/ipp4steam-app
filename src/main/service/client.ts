@@ -6,6 +6,12 @@ import type { AxiosHeaders } from 'axios'
 import type { ItemInfoLog, ItemOrdersInfo } from '@main/service/order'
 import { notifyNews } from '@main/service/monitorService'
 import { getPrice, setPrice } from '@main/service/store'
+import {
+  setWebTradeEligibilityCookie,
+  extractCookieValue,
+  commonHeaders,
+  marketHashNameMap
+} from '@main/service/requestConfig'
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P]
@@ -15,7 +21,7 @@ const createHttpClient = (proxy_url: string, headers?: DeepPartial<AxiosHeaders>
   try {
     // 只有当proxy_url存在时才创建代理
     const proxyAgent = proxy_url
-      ? new HttpsProxyAgent(proxy_url, {
+      ? new HttpsProxyAgent('http://127.0.0.1:7890', {
           keepAlive: true
         })
       : null
@@ -44,12 +50,13 @@ const useHttpClientFactory = async (): Promise<ProxyUsersTreeX[]> => {
   for (const proxy of proxies) {
     proxy.client = createHttpClient(proxy.proxyLink)
     for (const user of proxy.users) {
+      const headers = commonHeaders
+      // 延长cookie过期时间
+      headers.cookie = setWebTradeEligibilityCookie(user.cookie)
       // 创建用户购买订单的代理客户端
       for (const proxy2 of user.proxies) {
         proxy2.client = createHttpClient(proxy.proxyLink, {
-          Cookie: user.cookie,
-          Referer: 'https://steamcommunity.com/market',
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+          ...headers
         })
       }
     }
@@ -62,26 +69,6 @@ const extractQueryParam = (url: string, key: string): string => {
   const parsedUrl = new URL(url)
   const queryParams = Object.fromEntries(parsedUrl.searchParams.entries())
   return queryParams[key]
-}
-
-// 提取cookie字段
-const extractCookieValue = (cookie: string, name: string): string => {
-  const cookies = cookie.split('; ')
-  for (const cookie of cookies) {
-    const [key, value] = cookie.split('=')
-    if (key === name) {
-      return decodeURIComponent(value)
-    }
-  }
-  return ''
-}
-
-// itemid与itemname的映射
-const marketHashNameMap = {
-  176003279: 'Reaper Mask',
-  176003275: 'Survivalist Slacks',
-  // 测试链接
-  175882811: 'Combat Pants (Blue)'
 }
 
 let price_total = getPrice()
@@ -134,9 +121,6 @@ const getOrderList = async (proxy: ProxyUsersTreeX): Promise<void> => {
 
 // 创建订单请求: 请求成功后移除客户端
 const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string): Promise<void> => {
-  if (!proxy.client) {
-    return
-  }
   proxy.client
     .post(proxy.targetLink, {
       sessionid,
@@ -160,10 +144,6 @@ const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string):
     })
     .then((res) => {
       console.log(res)
-      // @ts-ignore 在成功创建订单后移除client防止重复发送订单请求
-      proxy.client = null
-      // 发送客户端信息
-      // console.log(res)
     })
     .catch((err) => {
       // 发送客户端信息
@@ -173,7 +153,16 @@ const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string):
 
 // TODO:登录检测，持续上报请求心跳
 const heartbeat = (proxy: ProxyType): void => {
-  // console.log(proxy)
+  console.log('heartbeat')
+  proxy.client
+    .get('https://steamcommunity.com/market')
+    .then(() => {
+      // TODO:用户信息解析
+    })
+    .catch(() => {
+      console.log(429)
+      // console.log('heartbeat', err)
+    })
 }
 
 const setExpectedPrice = (price: number): number => {
