@@ -95,6 +95,7 @@ const queryProxiesWithUserProxies = async (): Promise<ProxyUsersTree[]> => {
             select: {
               steamID: true,
               cookie: true,
+              nickname: true,
               proxies: {
                 where: {
                   proxy: {
@@ -128,6 +129,7 @@ const queryProxiesWithUserProxies = async (): Promise<ProxyUsersTree[]> => {
     users: proxy.users.map(({ user }) => ({
       steamID: user.steamID,
       cookie: user.cookie,
+      nickname: user.nickname,
       proxies: user.proxies.map((p) => p.proxy)
     }))
   }))

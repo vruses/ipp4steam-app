@@ -24,7 +24,7 @@ const updateIntreval = (interval: number): Promise<ResultType<number>> => {
 }
 
 // 开启或者关闭调度器
-const updateMonitorStatus = (status: boolean): ResultType<boolean> => {
+const updateMonitorStatus = (status: boolean): ResultType<number> => {
   try {
     const res = updateScheduleStatus(status)
     return {
@@ -35,8 +35,8 @@ const updateMonitorStatus = (status: boolean): ResultType<boolean> => {
   } catch {
     return {
       code: -1,
-      msg: 'success',
-      data: false
+      msg: 'fail',
+      data: 0
     }
   }
 }

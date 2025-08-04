@@ -31,8 +31,8 @@ export interface IProxy {
 export interface IMonitor {
   // 更新查询间隔
   updateInterval: (interval: number) => Promise<ResultType<number>>
-  // 启动或关闭监听
-  updateMonitorStatus: (status: boolean) => Promise<ResultType<boolean>>
+  // 启动或关闭监听,返回当前任务数
+  updateMonitorStatus: (status: boolean) => Promise<ResultType<number>>
   // 获取新消息
   ReceiveNews: (callback: (value: unknown) => void) => void
   // 获取登录心跳

@@ -88,11 +88,19 @@ const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string):
       confirmation: 1
     })
     .then((res) => {
-      console.log(res)
+      observer.notify('notify:heartbeat-logs', {
+        code: 0,
+        msg: 'success',
+        data: res
+      })
     })
     .catch((err) => {
       // 发送客户端信息
-      console.log(err)
+      observer.notify('notify:heartbeat-logs', {
+        code: -1,
+        msg: 'fail',
+        data: err
+      })
     })
 }
 
@@ -105,19 +113,19 @@ const heartbeat = (user: User, proxy: ProxyType): void => {
       const info = parseUserInfo(res as string)
 
       //当未登录时推送渲染进程消息
-      if (info.steamID) {
+      if (!info.steamID) {
         // 登录失效
         observer.notify('notify:heartbeat-logs', {
           code: -1,
           msg: 'fail',
-          data: { steamID: user.steamID, loginStatus: 'failed' }
+          data: { steamID: user.steamID, nickname: user.nickname, loginStatus: 'failed' }
         })
       } else {
         // 登录成功
         observer.notify('notify:heartbeat-logs', {
           code: 0,
           msg: 'success',
-          data: { steamID: user.steamID, loginStatus: 'succeed' }
+          data: { steamID: user.steamID, nickname: user.nickname, loginStatus: 'succeed' }
         })
       }
     })
@@ -126,7 +134,7 @@ const heartbeat = (user: User, proxy: ProxyType): void => {
       observer.notify('notify:heartbeat-logs', {
         code: error.status,
         msg: error.message,
-        data: { steamID: user.steamID, loginStatus: 'failed' }
+        data: { steamID: user.steamID, nickname: user.nickname, loginStatus: 'failed' }
       })
     })
 }

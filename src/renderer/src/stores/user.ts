@@ -39,6 +39,7 @@ export const useUserStore = defineStore('user', () => {
             user.loginStatus = 'failed'
             return true
           } else {
+            user.loginStatus = 'succeed'
             return false
           }
         })

@@ -44,6 +44,10 @@ function createWindow(): void {
   //
   observer.subscribe('notify:heartbeat-logs', (data) => {
     if (!mainWindow.isDestroyed()) {
+      const now = new Date()
+      const timeOnly = now.toTimeString().slice(0, 8)
+      // @ts-ignore 加入日志时间
+      data.time = timeOnly
       mainWindow.webContents.send('heartbeat-logs', data)
     }
   })

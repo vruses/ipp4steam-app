@@ -7,10 +7,9 @@ import { storeToRefs } from 'pinia'
 const { logs } = storeToRefs(useMonitorStore())
 </script>
 <template>
-  <ScrollArea class="h-50 w-auto rounded-md border">
+  <h1 class="text-2xl font-bold text-gray-800 mb-2 pl-2">输出日志</h1>
+  <ScrollArea class="h-150 w-auto rounded-md border">
     <div class="p-4">
-      <h1 class="text-2xl font-bold text-gray-800 mb-2 pl-2">输出日志</h1>
-
       <div v-for="log in logs" :key="log">
         <div class="text-sm">
           {{ log }}

@@ -74,7 +74,7 @@ const handleMonitorClick = (): void => {
     .then((result) => {
       result.code === 0
         ? toast.success('信息提示', {
-            description: `监控成功${result.data ? '开启' : '关闭'}！`
+            description: `监控成功${monitoringActive.value ? '开启' : '关闭'},当前任务数为: ${result.data}`
           })
         : toast.warning('信息提示', {
             description: `操作监控失败！`
@@ -161,12 +161,12 @@ onMounted(() => {
 
       <!-- 右侧：ScrollArea，占70% -->
       <div class="w-7/10">
-        <ScrollArea class="h-50 w-full rounded-md border">
+        <ScrollArea class="h-50 w-full rounded-md border font-mono">
           <div class="p-4">
             <h4 class="mb-4 text-sm font-medium leading-none">当前订阅信息</h4>
 
             <div v-for="tag in news" :key="tag">
-              <div class="text-sm odd:bg-red-400 even:bg-white">
+              <div class="text-sm">
                 {{ tag }}
               </div>
               <Separator class="my-2" />

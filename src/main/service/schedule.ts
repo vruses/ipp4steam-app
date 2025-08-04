@@ -8,7 +8,7 @@ import { getQueryIntreval, setQueryIntreval } from '@main/service/store'
 const scheduler = new ToadScheduler()
 let schedulerActive = false
 let getInterval = getQueryIntreval()
-const postInterval = 5000
+const postInterval = 20 * 60 * 1000
 
 // 创建任务，返回扁平化的任务列表
 const createJobs = async (): Promise<LongIntervalJob[]> => {
@@ -21,9 +21,13 @@ const createJobs = async (): Promise<LongIntervalJob[]> => {
     const job2Array = proxy.users.map((user) => {
       return user.proxies.map((proxy2) => {
         const task = new Task('postTask', () => heartbeat(user, proxy2))
-        const job = new LongIntervalJob({ milliseconds: postInterval }, task, {
-          id: uniqueId('postJob')
-        })
+        const job = new LongIntervalJob(
+          { milliseconds: postInterval, runImmediately: true },
+          task,
+          {
+            id: uniqueId('postJob')
+          }
+        )
         return job
       })
     })
@@ -81,11 +85,12 @@ const setScheduleInterval = async (interval: number): Promise<number> => {
   return getInterval
 }
 // 更新调度器状态
-const updateScheduleStatus = (status: boolean): boolean => {
+const updateScheduleStatus = (status: boolean): number => {
   schedulerActive = status
-  console.log('status', status)
+  const count = scheduler.getAllJobs().length
   schedulerActive ? startAllJobs() : stopAllJobs()
-  return schedulerActive
+
+  return count
 }
 
 export {

@@ -30,7 +30,7 @@ export const useMonitorStore = defineStore('monitor', () => {
   }
 
   // 监控开启与关闭
-  const updateMonitorStatus = (): Promise<ResultType<boolean>> => {
+  const updateMonitorStatus = (): Promise<ResultType<number>> => {
     return window.monitorApi.updateMonitorStatus(!monitoringActive.value).then((result) => {
       if (result.code === 0) {
         monitoringActive.value = !monitoringActive.value
@@ -56,14 +56,14 @@ export const useMonitorStore = defineStore('monitor', () => {
 
   // 实时更新最新消息
   window.monitorApi.ReceiveNews((value) => {
-    news.push(value as string)
-    if (news.length > 10) {
+    news.push(JSON.stringify(value))
+    if (news.length > 5) {
       news.shift() // 删除最早的一项
     }
   })
   // 实时日志
   window.monitorApi.heartbeatLogs((value) => {
-    logs.push(value as string)
+    logs.push(JSON.stringify(value))
     if (logs.length > 500) {
       logs.shift() // 删除最早的一项
     }
