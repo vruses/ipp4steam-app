@@ -35,7 +35,7 @@ const queryAllUserInfo = async (): Promise<UserInfo[]> => {
 }
 
 // 新增用户数据,或更新用户登录状态，返回该用户
-const updateUserStatus = async (res: LoginRes, cookie: string): Promise<User> => {
+const upsertUserStatus = async (res: LoginRes, cookie: string): Promise<User> => {
   const user = await prisma.user.upsert({
     where: { steamID: res.steamID },
     update: {
@@ -147,7 +147,7 @@ const deleteUser = async (steamID: number): Promise<string> => {
 
 export {
   queryAllUserInfo,
-  updateUserStatus,
+  upsertUserStatus,
   queryAllCookies,
   updateAllUserStatus,
   updateUserSubs,

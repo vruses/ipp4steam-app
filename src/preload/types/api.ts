@@ -1,4 +1,4 @@
-import type { UserInfo, ExpiredAccounts } from './user'
+import type { UserInfo, ExpiredAccounts, LoginRes } from './user'
 import type { Proxy } from './proxy'
 
 export interface ResultType<T> {
@@ -10,7 +10,7 @@ export interface IUser {
   //查询用户列表
   queryUserList: () => Promise<ResultType<UserInfo[]>>
   // 单用户登录时调用，返回用户信息
-  requestUserLogin: (cookie: string) => Promise<ResultType<UserInfo>>
+  requestUserLogin: (cookie: string) => Promise<ResultType<LoginRes>>
   // 检查所有用户是否处于登录状态，返回过期的id列表
   hasAllCookiesExpired: () => Promise<ResultType<ExpiredAccounts>>
   // 更新用户订阅，返回当前用户的订阅列表

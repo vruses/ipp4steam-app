@@ -1,4 +1,4 @@
-import type { Proxy } from '@preload/types/proxy'
+import type { FlatProxy, Proxy } from '@preload/types/proxy'
 import type { ProxyUsersTree } from '@preload/types/user-proxy'
 import prisma from '@main/mapper/prisma'
 
@@ -22,6 +22,28 @@ const queryAllProxies = async (): Promise<Proxy[]> => {
       }
     }
   })
+}
+
+// 查询一个type为post的proxy，如果没有则查询get proxy
+const queryProxyByType = async (type: 'get' | 'post'): Promise<FlatProxy | null> => {
+  const proxy = await prisma.proxy.findFirst({
+    where: {
+      requestType: {
+        in: ['post', 'get']
+      }
+    },
+    select: {
+      proxyLink: true,
+      configName: true,
+      requestType: true,
+      targetLink: true
+    },
+    orderBy: {
+      // post 优先
+      requestType: type === 'post' ? 'desc' : 'asc'
+    }
+  })
+  return proxy
 }
 
 // 删除proxy，返回被删除的proxyName
@@ -113,4 +135,10 @@ const queryProxiesWithUserProxies = async (): Promise<ProxyUsersTree[]> => {
   return upTree
 }
 
-export { queryAllProxies, deleteProxyByName, insertProxy, queryProxiesWithUserProxies }
+export {
+  queryAllProxies,
+  queryProxyByType,
+  deleteProxyByName,
+  insertProxy,
+  queryProxiesWithUserProxies
+}

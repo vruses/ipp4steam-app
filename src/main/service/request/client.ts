@@ -18,6 +18,7 @@ const createHttpClient = (proxy_url: string, headers?: DeepPartial<AxiosHeaders>
           keepAlive: true
         })
       : null
+    console.log(headers)
     const httpClient = new HttpClient({
       httpsAgent: proxyAgent,
       headers
@@ -57,4 +58,4 @@ const useHttpClientFactory = async (): Promise<ProxyUsersTreeX[]> => {
   return proxies
 }
 
-export { useHttpClientFactory, type ProxyUsersTreeX, type ProxyType }
+export { createHttpClient, useHttpClientFactory, type ProxyUsersTreeX, type ProxyType }

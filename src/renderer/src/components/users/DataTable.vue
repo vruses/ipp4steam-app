@@ -63,10 +63,21 @@ const requestLogin = async (): Promise<void> => {
     const text = await navigator.clipboard.readText()
     if (text) {
       userManager.btnStatus = 'pending'
-      const userInfo = await login(text)
-      toast.success('信息提示', {
-        description: `${userInfo.nickname} 登录成功！`
-      })
+      const result = await login(text)
+      const userInfo = result.data
+      if (result.code === 0) {
+        toast.success('信息提示', {
+          description: `${userInfo.nickname} 登录成功！`
+        })
+      } else if (result.code === -2) {
+        toast.success('信息提示', {
+          description: result.msg
+        })
+      } else if (result.code === -1) {
+        toast.success('信息提示', {
+          description: result.msg
+        })
+      }
     }
   } catch {
     toast.warning('错误提示', { description: '登录失败！' })
