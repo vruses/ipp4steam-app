@@ -5,6 +5,7 @@ import type { UserAuthAndProxies, ExtendedFlatProxy } from '@preload/types/user-
 import type { AxiosHeaders } from 'axios'
 
 import { setWebTradeEligibilityCookie, commonHeaders } from '@main/service/request/requestConfig'
+import { cloneDeep } from 'lodash-es'
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P]
@@ -43,7 +44,7 @@ const useHttpClientFactory = async (): Promise<ProxyUsersTreeX[]> => {
   for (const proxy of proxies) {
     proxy.client = createHttpClient(proxy.proxyLink)
     for (const user of proxy.users) {
-      const headers = commonHeaders
+      const headers = cloneDeep(commonHeaders)
       // 延长cookie过期时间
       headers.cookie = setWebTradeEligibilityCookie(user.cookie)
       // 创建用户购买订单的代理客户端

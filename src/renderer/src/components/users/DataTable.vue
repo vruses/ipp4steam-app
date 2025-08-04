@@ -70,11 +70,15 @@ const requestLogin = async (): Promise<void> => {
           description: `${userInfo.nickname} 登录成功！`
         })
       } else if (result.code === -2) {
-        toast.success('信息提示', {
+        toast.warning('信息提示', {
           description: result.msg
         })
       } else if (result.code === -1) {
-        toast.success('信息提示', {
+        toast.warning('信息提示', {
+          description: result.msg
+        })
+      } else {
+        toast.warning('错误提示', {
           description: result.msg
         })
       }

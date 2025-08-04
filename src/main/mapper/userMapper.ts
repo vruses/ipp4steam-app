@@ -39,7 +39,8 @@ const upsertUserStatus = async (res: LoginRes, cookie: string): Promise<User> =>
   const user = await prisma.user.upsert({
     where: { steamID: res.steamID },
     update: {
-      loginStatus: res.loginStatus
+      loginStatus: res.loginStatus,
+      cookie: cookie
     },
     create: {
       steamID: res.steamID,
@@ -57,14 +58,14 @@ const upsertUserStatus = async (res: LoginRes, cookie: string): Promise<User> =>
 }
 
 // 查询所有cookie
-const queryAllCookies = async (): Promise<string[]> => {
+const queryAllCookies = async (): Promise<{ steamID: string; cookie: string }[]> => {
   const results = await prisma.user.findMany({
     select: {
+      steamID: true,
       cookie: true
     }
   })
-  const cookieList = results.map((result) => result.cookie)
-  return cookieList
+  return results
 }
 
 // 更新现有的所有用户状态，返回status为failed的user列表

@@ -30,11 +30,22 @@ export const useUserStore = defineStore('user', () => {
     })
   }
 
-  // preload返回登录失败的userid列表，更新对应账号数据，将账号昵称传给组件进行信息展示
+  //返回登录过期的账号昵称
   const hasAllCookiesExpired = async (): Promise<string[]> => {
-    // 调用await window.api.hasAllCookiesExpired()返回ExpiredAccounts
-    return ['a', 'b', 'c']
+    return window.userApi.hasAllCookiesExpired().then((res) => {
+      return userManager.userList
+        .filter((user) => {
+          if (res.data.failedSteamIDList.includes(user.steamID)) {
+            user.loginStatus = 'failed'
+            return true
+          } else {
+            return false
+          }
+        })
+        .map((value) => value.nickname)
+    })
   }
+
   // 更新用户订阅
   const updateSubscription = (
     steamID: string,

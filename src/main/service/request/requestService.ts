@@ -158,7 +158,7 @@ const requestLogin = (client: HttpClient): Promise<ResultType<LoginRes>> => {
       }
     })
     .catch((error: { status: number; message: string }) => {
-      // 可能429请求频繁
+      // 可能429请求频繁,也可能用户输入了错误的请求信息
       return {
         code: error.status,
         msg: error.message,

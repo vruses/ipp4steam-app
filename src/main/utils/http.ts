@@ -54,7 +54,7 @@ class HttpClient {
         }
         const e = {
           message,
-          status: error.response?.status
+          status: error.response?.status ?? 400
         }
         // logger.error(e)
         return Promise.reject(e)
