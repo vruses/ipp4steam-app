@@ -16,10 +16,10 @@ function registerUserIpc(): void {
   ipcMain.handle('has-all-cookies-expired', async () => {
     return await handleHasAllCookiesExpired()
   })
-  ipcMain.handle('update-user-subs', async (_event, steamID: number, proxynameList: string[]) => {
+  ipcMain.handle('update-user-subs', async (_event, steamID: string, proxynameList: string[]) => {
     return await handleUpdateUserSubs(steamID, proxynameList)
   })
-  ipcMain.handle('delete-user', async (_event, steamID: number) => {
+  ipcMain.handle('delete-user', async (_event, steamID: string) => {
     return await handleDeleteUser(steamID)
   })
 }

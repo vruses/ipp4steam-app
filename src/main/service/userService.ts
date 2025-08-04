@@ -37,7 +37,6 @@ const handleRequestUserLogin = async (cookie: string): Promise<ResultType<LoginR
   headers.cookie = setWebTradeEligibilityCookie(cookie)
   const client = await queryProxyByType('post')
     .then((result) => {
-      console.log(result)
       if (!result) {
         return createHttpClient('', headers)
       } else {
@@ -49,7 +48,6 @@ const handleRequestUserLogin = async (cookie: string): Promise<ResultType<LoginR
     })
   // 等待用户数据入库后返回响应
   const result = await requestLogin(client)
-  console.log(result)
   if (result.code === 0) {
     return await upsertUserStatus(result.data, cookie)
       .then(() => result)
@@ -66,7 +64,7 @@ const handleHasAllCookiesExpired = async (): Promise<ResultType<ExpiredAccounts>
 }
 
 const handleUpdateUserSubs = async (
-  steamID: number,
+  steamID: string,
   proxynameList: string[]
 ): Promise<ResultType<{ count: number }>> => {
   return updateUserSubs(steamID, proxynameList)
@@ -88,7 +86,7 @@ const handleUpdateUserSubs = async (
     })
 }
 
-const handleDeleteUser = async (steamID: number): Promise<ResultType<string>> => {
+const handleDeleteUser = async (steamID: string): Promise<ResultType<string>> => {
   return deleteUser(steamID)
     .then((result) => {
       return {

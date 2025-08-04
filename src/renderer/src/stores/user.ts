@@ -37,7 +37,7 @@ export const useUserStore = defineStore('user', () => {
   }
   // 更新用户订阅
   const updateSubscription = (
-    steamID: number,
+    steamID: string,
     currentList: string[]
   ): Promise<ResultType<{ count: number }>> => {
     const index = userManager.userList.findIndex((value) => {
@@ -53,7 +53,7 @@ export const useUserStore = defineStore('user', () => {
   }
 
   // 删除用户
-  const deleteUser = (steamID: number): Promise<ResultType<string>> => {
+  const deleteUser = (steamID: string): Promise<ResultType<string>> => {
     return window.userApi.deleteUser(steamID).then((result) => {
       if (result.code === 0) {
         const index = userManager.userList.findIndex((value) => {

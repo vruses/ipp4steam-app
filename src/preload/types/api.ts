@@ -15,11 +15,11 @@ export interface IUser {
   hasAllCookiesExpired: () => Promise<ResultType<ExpiredAccounts>>
   // 更新用户订阅，返回当前用户的订阅列表
   updateUserSubs: (
-    steamID: number,
+    steamID: string,
     proxynameList: string[]
   ) => Promise<ResultType<{ count: number }>>
   // 删除用户,返回用户名
-  deleteUser: (steamID: number) => Promise<ResultType<string>>
+  deleteUser: (steamID: string) => Promise<ResultType<string>>
 }
 export interface IProxy {
   // 查询所有的代理

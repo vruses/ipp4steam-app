@@ -22,7 +22,7 @@ enum LoginStatus {
 
 model User {
   id          Int         @id @default(autoincrement())
-  steamID     Int         @unique
+  steamID     String      @unique
   nickname    String
   cookie      String
   loginStatus LoginStatus

@@ -44,12 +44,12 @@ export class CheerioWrapper {
 // document.querySelector('a[data-miniprofile]').href.split('/')[4] steamid
 // document.querySelector('a[data-miniprofile]').textContent nickname
 // 解析用户信息
-export const parseUserInfo = (html: string): { steamID: number; nickname: string } => {
+export const parseUserInfo = (html: string): { steamID: string; nickname: string } => {
   const cheerioWrapper = new CheerioWrapper(html)
   const steamID = cheerioWrapper.getAttr('a[data-miniprofile]', 'href')
   const nickname = cheerioWrapper.getText('a[data-miniprofile]').trim()
   return {
-    steamID: parseInt(steamID?.split('/')[4] ?? ''),
+    steamID: steamID?.split('/')[4] ?? '',
     nickname
   }
 }

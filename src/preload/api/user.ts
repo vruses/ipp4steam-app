@@ -14,11 +14,11 @@ export const userApi: IUser = {
     const channelName = 'has-all-cookies-expired'
     return ipcRenderer.invoke(channelName)
   },
-  updateUserSubs: (steamID: number, proxynameList: string[]) => {
+  updateUserSubs: (steamID: string, proxynameList: string[]) => {
     const channelName = 'update-user-subs'
     return ipcRenderer.invoke(channelName, steamID, proxynameList)
   },
-  deleteUser: (steamID: number) => {
+  deleteUser: (steamID: string) => {
     const channelName = 'delete-user'
     return ipcRenderer.invoke(channelName, steamID)
   }

@@ -18,7 +18,6 @@ const createHttpClient = (proxy_url: string, headers?: DeepPartial<AxiosHeaders>
           keepAlive: true
         })
       : null
-    console.log(headers)
     const httpClient = new HttpClient({
       httpsAgent: proxyAgent,
       headers

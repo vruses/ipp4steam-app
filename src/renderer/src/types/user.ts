@@ -8,7 +8,7 @@ export const loginPayloadSchema = z.object({
 export type LoginPayload = z.infer<typeof loginPayloadSchema>
 
 export const loginResSchema = z.object({
-  steamID: z.number(),
+  steamID: z.string(),
   nickname: z.string(),
   loginStatus: z.string()
 })

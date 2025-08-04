@@ -103,19 +103,21 @@ const heartbeat = (user: User, proxy: ProxyType): void => {
     .get('https://steamcommunity.com/market')
     .then((res) => {
       const info = parseUserInfo(res as string)
-      // 登录成功
-      observer.notify('notify:heartbeat-logs', {
-        code: 0,
-        msg: 'success',
-        data: { steamID: user.steamID, loginStatus: 'succeed' }
-      })
+
       //当未登录时推送渲染进程消息
-      if (isNaN(info.steamID)) {
+      if (info.steamID) {
         // 登录失效
         observer.notify('notify:heartbeat-logs', {
           code: -1,
           msg: 'fail',
           data: { steamID: user.steamID, loginStatus: 'failed' }
+        })
+      } else {
+        // 登录成功
+        observer.notify('notify:heartbeat-logs', {
+          code: 0,
+          msg: 'success',
+          data: { steamID: user.steamID, loginStatus: 'succeed' }
         })
       }
     })
@@ -132,23 +134,27 @@ const heartbeat = (user: User, proxy: ProxyType): void => {
 // 查看登录的用户信息
 const requestLogin = (client: HttpClient): Promise<ResultType<LoginRes>> => {
   return client
-    .get('https://steamcommunity.com/market')
+    .get<string>('https://steamcommunity.com/market')
     .then((res) => {
-      const info = parseUserInfo(res as string)
+      const info = parseUserInfo(res)
       // 登录失效
-      console.log(info)
-      if (isNaN(info.steamID)) {
+      if (!info.steamID) {
         return {
           code: -1,
           msg: '用户登录失败',
           data: {} as LoginRes
         }
-      }
-      // 登录成功
-      return {
-        code: 0,
-        msg: '用户登录成功',
-        data: { steamID: info.steamID, nickname: info.nickname, loginStatus: 'succeed' } as LoginRes
+      } else {
+        // 登录成功
+        return {
+          code: 0,
+          msg: '用户登录成功',
+          data: {
+            steamID: info.steamID,
+            nickname: info.nickname,
+            loginStatus: 'succeed'
+          } as LoginRes
+        }
       }
     })
     .catch((error: { status: number; message: string }) => {
