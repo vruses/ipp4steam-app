@@ -125,7 +125,7 @@ const heartbeat = (user: User, proxy: ProxyType): void => {
         observer.notify('notify:heartbeat-logs', {
           code: 0,
           msg: 'success',
-          data: { steamID: user.steamID, nickname: user.nickname, loginStatus: 'succeed' }
+          data: { steamID: info.steamID, nickname: info.nickname, loginStatus: 'succeed' }
         })
       }
     })

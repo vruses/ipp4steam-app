@@ -15,7 +15,7 @@ const createHttpClient = (proxy_url: string, headers?: DeepPartial<AxiosHeaders>
   try {
     // 只有当proxy_url存在时才创建代理
     const proxyAgent = proxy_url
-      ? new HttpsProxyAgent('http://127.0.0.1:7890', {
+      ? new HttpsProxyAgent(proxy_url, {
           keepAlive: true
         })
       : null
