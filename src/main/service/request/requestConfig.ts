@@ -45,17 +45,27 @@ const setWebTradeEligibilityCookie = (cookie: string): string => {
   try {
     // 1. 提取 webTradeEligibility 字段的值
     const webTradeEligibilityStr = extractCookieValue(cookie, 'webTradeEligibility')
+
     // 2. 解析为 JSON
     const webTradeEligibility = JSON.parse(webTradeEligibilityStr)
-    // 3. 修改 expiration 字段
+
+    // 3. 如果没有 expiration 字段，返回原 cookie
+    if (!('expiration' in webTradeEligibility)) {
+      return cookie
+    }
+
+    // 4. 修改 expiration 字段
     webTradeEligibility.expiration = String(webTradeEligibility.expiration) + '0'
-    // 4. 将修改后的对象重新编码为 JSON
+
+    // 5. 将修改后的对象重新编码为 JSON
     const newWebTradeEligibilityStr = encodeURIComponent(JSON.stringify(webTradeEligibility))
-    // 5. 替换原 cookie 中对应字段的值
+
+    // 6. 替换原 cookie 中对应字段的值
     const newCookie = cookie.replace(
       /webTradeEligibility=([^;]*)/,
       `webTradeEligibility=${newWebTradeEligibilityStr}`
     )
+
     return newCookie
   } catch {
     return cookie

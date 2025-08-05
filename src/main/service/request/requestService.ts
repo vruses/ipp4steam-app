@@ -82,7 +82,7 @@ const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string):
       last_name: '1',
       billing_address: '1',
       billing_address_two: '1',
-      billing_country: '1',
+      billing_country: 'ES',
       billing_city: '1',
       billing_postal_code: '1',
       confirmation: 1
