@@ -80,7 +80,6 @@ const updateAllJobs = (): void => {
 const setScheduleInterval = async (interval: number): Promise<number> => {
   getInterval = interval
   setQueryIntreval(interval)
-  console.log('intreval', interval)
   await updateAllJobs()
   return getInterval
 }

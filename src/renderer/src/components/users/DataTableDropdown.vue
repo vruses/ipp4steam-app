@@ -28,12 +28,10 @@ interface Props {
   onExpand?: () => void
 }
 //从tanstack table传来的row.original
-const props = defineProps<Props>()
-const userInfo = props.userInfo
-let proxynameList = userInfo.proxynameList
-// 从props解构初始化当前用户的代理列表
+const { userInfo } = defineProps<Props>()
 
-let currentList = new Set([...proxynameList])
+// 从props解构初始化当前用户的代理列表
+let currentList = new Set([...userInfo.proxynameList])
 watchEffect(() => {
   // user更新订阅更新组件显示
   currentList = new Set([...userInfo.proxynameList])

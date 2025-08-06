@@ -48,7 +48,11 @@ function createWindow(): void {
       const timeOnly = now.toTimeString().slice(0, 8)
       // @ts-ignore 加入日志时间
       data.time = timeOnly
-      mainWindow.webContents.send('heartbeat-logs', data)
+
+      mainWindow.webContents.send('heartbeat-logs', {
+        ...(data.data as Record<string, string>),
+        time: timeOnly
+      })
     }
   })
   // 注册user事件监听

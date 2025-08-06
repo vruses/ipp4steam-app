@@ -14,6 +14,7 @@ import { commonHeaders, setWebTradeEligibilityCookie } from '@main/service/reque
 import { requestLogin } from '@main/service/request/requestService'
 import { cloneDeep } from 'lodash-es'
 import type HttpClient from '@main/utils/http'
+import { updateAllJobs } from '@main/service/schedule'
 
 const handleQueryUserList = async (): Promise<ResultType<UserInfo[]>> => {
   return queryAllUserInfo()
@@ -117,6 +118,7 @@ const handleUpdateUserSubs = async (
   steamID: string,
   proxynameList: string[]
 ): Promise<ResultType<{ count: number }>> => {
+  updateAllJobs()
   return updateUserSubs(steamID, proxynameList)
     .then((result) => {
       return {
@@ -137,6 +139,7 @@ const handleUpdateUserSubs = async (
 }
 
 const handleDeleteUser = async (steamID: string): Promise<ResultType<string>> => {
+  updateAllJobs()
   return deleteUser(steamID)
     .then((result) => {
       return {

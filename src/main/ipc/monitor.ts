@@ -5,6 +5,7 @@ import {
   updatePrice,
   getConfig
 } from '@main/service/monitorService'
+import type { ResultType } from '@preload/types/api'
 
 function registerMonitorIpc(): void {
   ipcMain.handle('update-intreval', (_event, intreval: number) => {
@@ -61,5 +62,5 @@ class Observer<T> {
   }
 }
 
-const observer = new Observer()
+const observer = new Observer<ResultType<unknown>>()
 export { observer, registerMonitorIpc }

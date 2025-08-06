@@ -33,7 +33,7 @@ const getOrderList = async (proxy: ProxyUsersTreeX): Promise<void> => {
           for (const proxy of user.proxies) {
             const sessionid = extractCookieValue(user.cookie, 'sessionid')
             // 创建订单需要cookie里的sessionid和商品名
-            postOrder(proxy, sessionid, hashName)
+            postOrder(proxy, sessionid, hashName, user)
           }
         }
         // 用于发送给客户端的对象
@@ -65,7 +65,12 @@ const getOrderList = async (proxy: ProxyUsersTreeX): Promise<void> => {
 }
 
 // 创建订单请求: 请求成功后移除客户端
-const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string): Promise<void> => {
+const postOrder = async (
+  proxy: ProxyType,
+  sessionid: string,
+  hashName: string,
+  user: ProxyUsersTreeX['users'][number]
+): Promise<void> => {
   proxy.client
     .post(proxy.targetLink, {
       sessionid,
@@ -91,7 +96,7 @@ const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string):
       observer.notify('notify:heartbeat-logs', {
         code: 0,
         msg: 'success',
-        data: res
+        data: { ...(res as Record<string, string>), nickname: user.nickname }
       })
     })
     .catch((err) => {
@@ -99,7 +104,7 @@ const postOrder = async (proxy: ProxyType, sessionid: string, hashName: string):
       observer.notify('notify:heartbeat-logs', {
         code: -1,
         msg: 'fail',
-        data: err
+        data: { ...(err as Record<string, string>), nickname: user.nickname }
       })
     })
 }
@@ -111,7 +116,6 @@ const heartbeat = (user: User, proxy: ProxyType): void => {
     .get('https://steamcommunity.com/market')
     .then((res) => {
       const info = parseUserInfo(res as string)
-
       //当未登录时推送渲染进程消息
       if (!info.steamID) {
         // 登录失效

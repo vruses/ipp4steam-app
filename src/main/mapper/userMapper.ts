@@ -70,24 +70,24 @@ const queryAllCookies = async (): Promise<{ steamID: string; cookie: string }[]>
 
 // 更新现有的所有用户状态，返回status为failed的user列表
 const updateAllUserStatus = async (resList: User[]): Promise<User[]> => {
-  const user = resList.map((user) =>
-    prisma.user.update({
+  const failedUsers: User[] = []
+
+  const updateOperations = resList.map((user) => {
+    if (user.loginStatus === 'failed') {
+      failedUsers.push(user)
+    }
+
+    return prisma.user.update({
       where: { steamID: user.steamID },
       data: {
         loginStatus: user.loginStatus
-      },
-      select: {
-        steamID: true,
-        nickname: true,
-        loginStatus: true
       }
     })
-  )
-  // 原子性执行所有更新
-  const failedUserList = (await prisma.$transaction(user)).filter(
-    (item) => item.loginStatus === 'failed'
-  )
-  return failedUserList
+  })
+
+  await prisma.$transaction(updateOperations)
+
+  return failedUsers
 }
 
 // 更新用户订阅,先删除后插入，返回当前用户订阅数量
