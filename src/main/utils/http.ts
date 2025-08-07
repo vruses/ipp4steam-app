@@ -2,7 +2,8 @@ import axios, {
   type InternalAxiosRequestConfig,
   type AxiosError,
   type AxiosInstance,
-  type AxiosResponse
+  type AxiosResponse,
+  type AxiosRequestConfig
 } from 'axios'
 import ERROR_MESSAGES from './http-config'
 import querystring, { type ParsedUrlQueryInput } from 'querystring'
@@ -62,13 +63,18 @@ class HttpClient {
     )
   }
 
-  public async get<T>(url: string, params?: unknown): Promise<T> {
-    const response = await this.axiosInstance.get<T>(url, { params })
+  public async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    const response = await this.axiosInstance.get<T>(url, config)
     return response.data
   }
 
-  public async post<T>(url: string, params?: ParsedUrlQueryInput): Promise<T> {
-    const response = await this.axiosInstance.post<T>(url, querystring.stringify(params))
+  public async post<T>(
+    url: string,
+    params?: ParsedUrlQueryInput,
+    config?: AxiosRequestConfig
+  ): Promise<T> {
+    // 只支持表单post
+    const response = await this.axiosInstance.post<T>(url, querystring.stringify(params), config)
     return response.data
   }
 

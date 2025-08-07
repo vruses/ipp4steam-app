@@ -1,13 +1,18 @@
 import type { ItemInfoLog, ItemOrdersInfo } from '@main/service/request/order'
 import { notifyNews } from '@main/service/monitorService'
 import { getPrice, setPrice } from '@main/service/store'
-import { extractCookieValue, marketHashNameMap } from '@main/service/request/requestConfig'
+import {
+  extractCookieValue,
+  marketHashNameMap,
+  useHeaders
+} from '@main/service/request/requestConfig'
 import type { ProxyUsersTreeX, ProxyType } from '@main/service/request/client'
 import { parseUserInfo } from '@main/service/request/htmlParser'
 import { observer } from '@main/ipc/monitor'
 import type HttpClient from '@main/utils/http'
 import type { LoginRes } from '@preload/types/user'
 import type { ResultType } from '@preload/types/api'
+import type { AxiosRequestHeaders } from 'axios'
 
 let price_total = getPrice()
 
@@ -18,8 +23,27 @@ const extractQueryParam = (url: string, key: string): string => {
   return queryParams[key]
 }
 
+type CbType = () => Promise<void>
+// 提前计算创建订单的回调
+const orderCallbacksFactory = (proxy: ProxyUsersTreeX): CbType[] => {
+  const itemID = extractQueryParam(proxy.targetLink, 'item_nameid')
+  const hashName = marketHashNameMap[itemID]
+  const callbackList: CbType[] = []
+  for (const user of proxy.users) {
+    for (const proxy2 of user.proxies) {
+      const headers = useHeaders('order', user.cookie, hashName)
+      const sessionid = extractCookieValue(user.cookie, 'sessionid')
+      // 创建订单需要cookie里的sessionid和商品名，传入计算后的用户header
+      callbackList.push(() =>
+        postOrder(proxy2, sessionid, hashName, user, headers as AxiosRequestHeaders)
+      )
+    }
+  }
+  return callbackList
+}
+
 // 查询订单列表：实时记录与更新列表信息，在获取到关键信息时发送创建订单请求
-const getOrderList = async (proxy: ProxyUsersTreeX): Promise<void> => {
+const getOrderList = async (proxy: ProxyUsersTreeX, cbList: CbType[]): Promise<void> => {
   proxy.client
     .get<ItemOrdersInfo>(proxy.targetLink)
     .then((res) => {
@@ -27,14 +51,9 @@ const getOrderList = async (proxy: ProxyUsersTreeX): Promise<void> => {
       const itemID = extractQueryParam(proxy.targetLink, 'item_nameid')
       // 如果不为null，则说明当前有售卖单
       if (res.lowest_sell_order) {
-        // 通过itemID拿到商品名
-        const hashName = marketHashNameMap[itemID]
-        for (const user of proxy.users) {
-          for (const proxy of user.proxies) {
-            const sessionid = extractCookieValue(user.cookie, 'sessionid')
-            // 创建订单需要cookie里的sessionid和商品名
-            postOrder(proxy, sessionid, hashName, user)
-          }
+        // 执行此商品订阅用户的创建订单回调
+        for (const cb of cbList) {
+          cb()
         }
         // 用于发送给客户端的对象
         const itemInfo: ItemInfoLog = {
@@ -43,6 +62,11 @@ const getOrderList = async (proxy: ProxyUsersTreeX): Promise<void> => {
           orderGraph: res.sell_order_graph[0]
         }
         notifyNews(itemInfo)
+        observer.notify('notify:heartbeat-logs', {
+          code: 0,
+          msg: 'success',
+          data: { itemInfo }
+        })
       } else {
         // 检查是否有订购单
         if (!res.highest_buy_order) return
@@ -69,29 +93,33 @@ const postOrder = async (
   proxy: ProxyType,
   sessionid: string,
   hashName: string,
-  user: ProxyUsersTreeX['users'][number]
+  user: ProxyUsersTreeX['users'][number],
+  headers: AxiosRequestHeaders
 ): Promise<void> => {
   proxy.client
-    .post(proxy.targetLink, {
-      sessionid,
-      currency: 3,
-      // PUBG game的appid
-      appid: 578080,
-      market_hash_name: hashName,
-      price_total: price_total * 100,
-      tradefee_tax: 0,
-      quantity: 1,
-      billing_state: '',
-      save_my_address: 0,
-      first_name: '1',
-      last_name: '1',
-      billing_address: '1',
-      billing_address_two: '1',
-      billing_country: 'ES',
-      billing_city: '1',
-      billing_postal_code: '1',
-      confirmation: 1
-    })
+    .post(
+      proxy.targetLink,
+      {
+        sessionid,
+        currency: 3,
+        // PUBG game的appid
+        appid: 578080,
+        market_hash_name: hashName,
+        price_total: price_total * 100,
+        tradefee_tax: 0,
+        quantity: 1,
+        billing_state: '',
+        save_my_address: 1,
+        first_name: '1',
+        last_name: '1',
+        billing_address: '1',
+        billing_address_two: '1',
+        billing_country: 'ES',
+        billing_city: '1',
+        billing_postal_code: '1'
+      },
+      { headers }
+    )
     .then((res) => {
       observer.notify('notify:heartbeat-logs', {
         code: 0,
@@ -112,8 +140,9 @@ const postOrder = async (
 // 登录检测，持续上报请求心跳
 type User = ProxyUsersTreeX['users'][number]
 const heartbeat = (user: User, proxy: ProxyType): void => {
+  const headers = useHeaders('community', user.cookie)
   proxy.client
-    .get('https://steamcommunity.com/market')
+    .get('https://steamcommunity.com/market', { headers })
     .then((res) => {
       const info = parseUserInfo(res as string)
       //当未登录时推送渲染进程消息
@@ -144,9 +173,10 @@ const heartbeat = (user: User, proxy: ProxyType): void => {
 }
 
 // 查看登录的用户信息
-const requestLogin = (client: HttpClient): Promise<ResultType<LoginRes>> => {
+const requestLogin = (client: HttpClient, cookie: string): Promise<ResultType<LoginRes>> => {
+  const headers = useHeaders('community', cookie)
   return client
-    .get<string>('https://steamcommunity.com/market')
+    .get<string>('https://steamcommunity.com/market', { headers })
     .then((res) => {
       const info = parseUserInfo(res)
       // 登录失效
@@ -185,4 +215,4 @@ const setExpectedPrice = (price: number): number => {
   return price_total
 }
 
-export { requestLogin, getOrderList, postOrder, heartbeat, setExpectedPrice }
+export { requestLogin, getOrderList, postOrder, heartbeat, setExpectedPrice, orderCallbacksFactory }
