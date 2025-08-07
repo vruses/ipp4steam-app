@@ -11,7 +11,7 @@ const { logs } = storeToRefs(useMonitorStore())
   <ScrollArea class="h-120 w-auto rounded-md border">
     <div class="p-4">
       <div v-for="(log, index) in logs" :key="index">
-        <div class="text-sm">
+        <div :class="['text-sm', index % 2 === 0 ? 'text-primary' : '']">
           {{ log }}
         </div>
         <Separator class="my-2" />

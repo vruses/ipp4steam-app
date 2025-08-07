@@ -1,4 +1,5 @@
 import { ResultType } from '@renderer/types/api'
+import { throttle } from 'lodash-es'
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 
@@ -54,9 +55,12 @@ export const useMonitorStore = defineStore('monitor', () => {
     })
   }
 
+  const throttleReceive = throttle((value) => news.push(JSON.stringify(value)), 3000, {
+    leading: true
+  })
   // 实时更新最新消息
   window.monitorApi.ReceiveNews((value) => {
-    news.push(JSON.stringify(value))
+    throttleReceive(value)
     if (news.length > 5) {
       news.shift() // 删除最早的一项
     }
@@ -64,7 +68,7 @@ export const useMonitorStore = defineStore('monitor', () => {
   // 实时日志
   window.monitorApi.heartbeatLogs((value) => {
     logs.push(JSON.stringify(value))
-    if (logs.length > 500) {
+    if (logs.length > 50) {
       logs.shift() // 删除最早的一项
     }
   })

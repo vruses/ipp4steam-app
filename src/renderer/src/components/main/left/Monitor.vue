@@ -166,7 +166,7 @@ onMounted(() => {
             <h4 class="mb-4 text-sm font-medium leading-none">当前订阅信息</h4>
 
             <div v-for="(_new, index) in news" :key="index">
-              <div class="text-sm">
+              <div :class="['text-sm', index % 2 === 0 ? 'text-primary' : '']">
                 {{ _new }}
               </div>
               <Separator class="my-2" />
