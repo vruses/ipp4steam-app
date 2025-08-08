@@ -13,7 +13,8 @@ const createHttpClient = (proxy_url: string, headers?: DeepPartial<AxiosHeaders>
     // 只有当proxy_url存在时才创建代理
     const proxyAgent = proxy_url
       ? new HttpsProxyAgent(proxy_url, {
-          keepAlive: true
+          keepAlive: true,
+          rejectUnauthorized: false
         })
       : null
     const httpClient = new HttpClient({
