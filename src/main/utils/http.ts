@@ -87,6 +87,14 @@ class HttpClient {
     const response = await this.axiosInstance.post<T>(url, { params })
     return response.data
   }
+
+  // 用来获取请求响应头
+  public async getRaw<T>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<AxiosResponse<T, unknown>> {
+    return this.axiosInstance.get<T>(url, config)
+  }
 }
 
 // Export a singleton instance or create new instances as needed

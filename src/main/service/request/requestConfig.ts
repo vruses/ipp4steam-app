@@ -1,4 +1,5 @@
-import { cloneDeep, random } from 'lodash-es'
+import { communityHeaders, orderHeaders, refreshHeaders } from '@main/service/request/headers'
+import { random } from 'lodash-es'
 
 const uaList = [
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
@@ -15,48 +16,6 @@ const uaList = [
   'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
   'Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0'
 ]
-
-// 检查登录状态的请求headers，需要保证cookie不能过期
-const commonHeaders = {
-  Accept:
-    'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-  'Accept-Encoding': 'gzip, deflate, br, zstd',
-  'Accept-Language': 'zh-CN,zh;q=0.9',
-  'Cache-Control': 'no-cache',
-  Connection: 'keep-alive',
-  Cookie: '',
-  Host: 'steamcommunity.com',
-  Pragma: 'no-cache',
-  'Sec-Ch-Ua': '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
-  'Sec-Ch-Ua-Mobile': '?0',
-  'Sec-Ch-Ua-Platform': '"Windows"',
-  'Sec-Fetch-Dest': 'document',
-  'Sec-Fetch-Mode': 'navigate',
-  'Sec-Fetch-Site': 'none',
-  'Sec-Fetch-User': '?1',
-  'Upgrade-Insecure-Requests': '1',
-  'User-Agent': ''
-}
-
-// 创建订单请求的headers，需要携带referer和content-type
-const orderHeader = {
-  Accept: '*/*',
-  'Accept-Encoding': 'gzip, deflate, br, zstd',
-  'Accept-Language': 'zh-CN,zh;q=0.9',
-  Connection: 'keep-alive',
-  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-  Cookie: '',
-  Host: 'steamcommunity.com',
-  Origin: 'https://steamcommunity.com',
-  Referer: 'https://steamcommunity.com/market/listings/578080/',
-  'Sec-Ch-Ua': '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
-  'Sec-Ch-Ua-Mobile': '?0',
-  'Sec-Ch-Ua-Platform': '"Windows"',
-  'Sec-Fetch-Dest': 'empty',
-  'Sec-Fetch-Mode': 'cors',
-  'Sec-Fetch-Site': 'same-origin',
-  'User-Agent': ''
-}
 
 // itemid与itemname的映射
 const marketHashNameMap = {
@@ -78,7 +37,7 @@ const extractCookieValue = (cookie: string, name: string): string => {
   return ''
 }
 
-// 重新设置cookie过期时间
+// 重新设置cookie过期时间/Deprecated
 const setWebTradeEligibilityCookie = (cookie: string): string => {
   try {
     // 1. 提取 webTradeEligibility 字段的值
@@ -110,35 +69,29 @@ const setWebTradeEligibilityCookie = (cookie: string): string => {
   }
 }
 
-// 返回创建订单，或者社区主页请求使用的header
+// 返回创建订单，或者社区主页请求使用的header,或者用来刷新JWT有效期的header
 const useHeaders = (
-  type: 'order' | 'community',
+  type: 'order' | 'community' | 'refresh',
   cookie: string,
   hashName?: string
 ): Record<string, string> => {
-  if (type === 'order') {
-    const header = cloneDeep(orderHeader)
-    header['User-Agent'] = uaList[random(0, uaList.length - 1)]
-    header.Cookie = setWebTradeEligibilityCookie(cookie)
+  const headersMap = {
+    order: orderHeaders,
+    community: communityHeaders,
+    refresh: refreshHeaders
+  }
 
-    let referer = header.Referer
-    referer = hashName ? referer + encodeURIComponent(hashName) : referer
-    header.Referer = referer
-    return header
+  const header = {
+    ...headersMap[type],
+    'User-Agent': uaList[random(0, uaList.length - 1)],
+    Cookie: cookie
   }
-  if (type === 'community') {
-    const header = cloneDeep(commonHeaders)
-    header['User-Agent'] = uaList[random(0, uaList.length - 1)]
-    header.Cookie = setWebTradeEligibilityCookie(cookie)
-    return header
+
+  if (type === 'order' && hashName && 'Referer' in header) {
+    // 订单请求使用更精确的Referer
+    header.Referer = (header.Referer || '') + encodeURIComponent(hashName)
   }
-  return commonHeaders
+  return header
 }
 
-export {
-  setWebTradeEligibilityCookie,
-  extractCookieValue,
-  commonHeaders,
-  marketHashNameMap,
-  useHeaders
-}
+export { setWebTradeEligibilityCookie, extractCookieValue, marketHashNameMap, useHeaders }
