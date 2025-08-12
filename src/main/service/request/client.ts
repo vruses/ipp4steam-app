@@ -2,30 +2,35 @@ import HttpClient from '@main/utils/http'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import { queryProxiesWithUserProxies } from '@main/mapper/proxyMapper'
 import type { UserAuthAndProxies, ExtendedFlatProxy } from '@preload/types/user-proxy'
-import type { AxiosHeaders } from 'axios'
+import type { AxiosRequestConfig } from 'axios'
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P]
 }
 // 创建请求客户端
-const createHttpClient = (proxy_url: string, headers?: DeepPartial<AxiosHeaders>): HttpClient => {
+const createHttpClient = (
+  proxy_url: string,
+  config?: DeepPartial<AxiosRequestConfig>
+): HttpClient => {
   try {
     // 只有当proxy_url存在时才创建代理
     const proxyAgent = proxy_url
       ? new HttpsProxyAgent(proxy_url, {
+          keepAlive: true,
+          maxSockets: 100,
+          maxFreeSockets: 10,
+          timeout: 60000,
           rejectUnauthorized: false
         })
       : null
     const httpClient = new HttpClient({
       httpsAgent: proxyAgent,
-      headers
+      ...config
     })
     return httpClient
   } catch (error) {
     console.log(error)
-    return new HttpClient({
-      headers
-    })
+    return new HttpClient(config)
   }
 }
 
