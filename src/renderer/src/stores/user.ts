@@ -15,7 +15,6 @@ export const useUserStore = defineStore('user', () => {
   // cookie传给preload,将返回的userinfo传给组件进行信息展示
   const login = async (cookie: string): Promise<ResultType<UserInfo>> => {
     return window.userApi.requestUserLogin(cookie).then((result) => {
-      console.log(result)
       // -2为登录成功，但数据存储失败
       if (result.code === 0 || result.code === -2) {
         // 检查id是否重复，重复则更新id对应对象
