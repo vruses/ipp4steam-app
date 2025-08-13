@@ -1,8 +1,8 @@
 import { Cookie } from 'tough-cookie'
-import { communityHeaders, refreshHeaders } from '@main/service/request/headers'
 import { parseUserInfo } from '@main/service/request/htmlParser'
 import type { WebTradeEligibility } from '@main/service/request/cookie/cookie.type'
 import type HttpClient from '@main/utils/http'
+import { useHeaders } from '@main/service/request/requestConfig'
 
 // 将cookie转化为字符串
 export const cookieObjectToString = (cookieObj): string => {
@@ -19,14 +19,12 @@ export const cookieObjectToString = (cookieObj): string => {
 
 // 返回JWT刷新链接
 const refreshAccessToken = async (refreshToken: string, client: HttpClient): Promise<string> => {
+  const headers = useHeaders('refresh', refreshToken)
   return client
     .getRaw(
       'https://login.steampowered.com/jwt/refresh?redir=https%3A%2F%2Fsteamcommunity.com%2Fmarket%2F',
       {
-        headers: {
-          ...refreshHeaders,
-          cookie: refreshToken
-        }
+        headers
       }
     )
     .then((response) => {
@@ -49,12 +47,13 @@ const getAccessToken = async (
   steamCountry: string
   steamLoginSecure: string
 }> => {
+  const headers = useHeaders(
+    'community',
+    `timezoneOffset=28800,0; strInventoryLastContext=578080_2; steamDidLoginRefresh=${Math.floor(Date.now() / 1000)}`
+  )
   return client
     .getRaw(setTokenUrl, {
-      headers: {
-        ...communityHeaders,
-        cookie: `timezoneOffset=28800,0; strInventoryLastContext=578080_2; steamDidLoginRefresh=${Math.floor(Date.now() / 1000)}`
-      }
+      headers
     })
     .then((response) => {
       if (response.headers['set-cookie']) {
@@ -85,12 +84,10 @@ const getUserAndSession = async (
   },
   client: HttpClient
 ): Promise<{ steamID: string; nickname: string; sessionid: string; browserid: string }> => {
+  const headers = useHeaders('community', cookieObjectToString(accessToken))
   return client
     .getRaw('https://steamcommunity.com', {
-      headers: {
-        ...communityHeaders,
-        cookie: cookieObjectToString(accessToken)
-      }
+      headers
     })
     .then((response) => {
       if (response.headers['set-cookie']) {
