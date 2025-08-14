@@ -27,9 +27,9 @@ const marketHashNameMap = {
 
 // 提取cookie字段
 const extractCookieValue = (cookie: string, name: string): string => {
-  const cookies = cookie.split('; ')
+  const cookies = cookie.split(';')
   for (const cookie of cookies) {
-    const [key, value] = cookie.split('=')
+    const [key, value] = cookie.trim().split('=')
     if (key === name) {
       return decodeURIComponent(value)
     }
