@@ -27,6 +27,7 @@ model User {
   steamID     String      @unique
   nickname    String
   cookie      String
+  refreshToken String
   loginStatus LoginStatus
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt

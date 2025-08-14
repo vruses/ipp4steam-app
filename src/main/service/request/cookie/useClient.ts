@@ -7,7 +7,7 @@ const useClient = async (): Promise<HttpClient> => {
   return await queryProxyByType('post')
     .then((result) => {
       if (result) {
-        return createHttpClient('http://127.0.0.1:7890', {
+        return createHttpClient(result.proxyLink, {
           // 避免跳转和302报错
           maxRedirects: 0,
           validateStatus: function (status) {

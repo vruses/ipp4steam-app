@@ -35,18 +35,24 @@ const queryAllUserInfo = async (): Promise<UserInfo[]> => {
 }
 
 // 新增用户数据,或更新用户登录状态，返回该用户
-const upsertUserStatus = async (res: LoginRes, cookie: string): Promise<User> => {
+const upsertUserStatus = async (
+  res: LoginRes,
+  cookie: string,
+  refreshToken: string
+): Promise<User> => {
   const user = await prisma.user.upsert({
     where: { steamID: res.steamID },
     update: {
       loginStatus: res.loginStatus,
-      cookie: cookie
+      cookie: cookie,
+      refreshToken
     },
     create: {
       steamID: res.steamID,
       nickname: res.nickname,
       loginStatus: res.loginStatus,
-      cookie: cookie
+      cookie: cookie,
+      refreshToken
     },
     select: {
       steamID: true,
@@ -66,6 +72,19 @@ const queryAllCookies = async (): Promise<{ steamID: string; cookie: string }[]>
     }
   })
   return results
+}
+
+// 查询用户的refreshToken
+const queryRefreshTokenById = async (steamID: string): Promise<{ refreshToken: string } | null> => {
+  const result = await prisma.user.findFirst({
+    select: {
+      refreshToken: true
+    },
+    where: {
+      steamID
+    }
+  })
+  return result
 }
 
 // 更新现有的所有用户状态，返回status为failed的user列表
@@ -150,6 +169,7 @@ export {
   queryAllUserInfo,
   upsertUserStatus,
   queryAllCookies,
+  queryRefreshTokenById,
   updateAllUserStatus,
   updateUserSubs,
   deleteUser
