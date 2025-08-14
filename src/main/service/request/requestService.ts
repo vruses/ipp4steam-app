@@ -7,11 +7,8 @@ import {
   useHeaders
 } from '@main/service/request/requestConfig'
 import type { ProxyUsersTreeX, ProxyType } from '@main/service/request/client'
-import { parseUserInfo } from '@main/service/request/htmlParser'
 import { observer } from '@main/ipc/monitor'
-import type HttpClient from '@main/utils/http'
-import type { LoginRes } from '@preload/types/user'
-import type { ResultType } from '@preload/types/api'
+
 import type { AxiosRequestHeaders } from 'axios'
 
 let price_total = getPrice()
@@ -65,7 +62,7 @@ const getOrderList = async (proxy: ProxyUsersTreeX, cbList: CbType[]): Promise<v
         observer.notify('notify:heartbeat-logs', {
           code: 0,
           msg: 'success',
-          data: { itemInfo }
+          data: `检测到商品售卖单=>${itemInfo.itemName}：${itemInfo.orderGraph}`
         })
       } else {
         // 检查是否有订购单
@@ -137,82 +134,10 @@ const postOrder = async (
     })
 }
 
-// 登录检测，持续上报请求心跳
-type User = ProxyUsersTreeX['users'][number]
-const heartbeat = (user: User, proxy: ProxyType): void => {
-  const headers = useHeaders('community', user.cookie)
-  proxy.client
-    .get('https://steamcommunity.com/market', { headers })
-    .then((res) => {
-      const info = parseUserInfo(res as string)
-      //当未登录时推送渲染进程消息
-      if (!info.steamID) {
-        // 登录失效
-        observer.notify('notify:heartbeat-logs', {
-          code: -1,
-          msg: 'fail',
-          data: { steamID: user.steamID, nickname: user.nickname, loginStatus: 'failed' }
-        })
-      } else {
-        // 登录成功
-        observer.notify('notify:heartbeat-logs', {
-          code: 0,
-          msg: 'success',
-          data: { steamID: info.steamID, nickname: info.nickname, loginStatus: 'succeed' }
-        })
-      }
-    })
-    .catch((error: { status: number; message: string }) => {
-      // 可能429请求频繁
-      observer.notify('notify:heartbeat-logs', {
-        code: error.status,
-        msg: error.message,
-        data: { steamID: user.steamID, nickname: user.nickname, loginStatus: 'failed' }
-      })
-    })
-}
-
-// 查看登录的用户信息
-const requestLogin = (client: HttpClient, cookie: string): Promise<ResultType<LoginRes>> => {
-  const headers = useHeaders('community', cookie)
-  return client
-    .get<string>('https://steamcommunity.com/market', { headers })
-    .then((res) => {
-      const info = parseUserInfo(res)
-      // 登录失效
-      if (!info.steamID) {
-        return {
-          code: -1,
-          msg: '用户登录失败',
-          data: {} as LoginRes
-        }
-      } else {
-        // 登录成功
-        return {
-          code: 0,
-          msg: '用户登录成功',
-          data: {
-            steamID: info.steamID,
-            nickname: info.nickname,
-            loginStatus: 'succeed'
-          } as LoginRes
-        }
-      }
-    })
-    .catch((error: { status: number; message: string }) => {
-      // 可能429请求频繁,也可能用户输入了错误的请求信息
-      return {
-        code: error.status,
-        msg: error.message,
-        data: {} as LoginRes
-      }
-    })
-}
-
 const setExpectedPrice = (price: number): number => {
   price_total = price
   setPrice(price)
   return price_total
 }
 
-export { requestLogin, getOrderList, postOrder, heartbeat, setExpectedPrice, orderCallbacksFactory }
+export { getOrderList, postOrder, setExpectedPrice, orderCallbacksFactory }

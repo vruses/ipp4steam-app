@@ -4,27 +4,10 @@ import {
   deleteUser,
   queryAllCookies,
   queryAllUserInfo,
-  updateAllUserStatus,
-  updateUserSubs,
-  upsertUserStatus
+  updateUserSubs
 } from '@main/mapper/userMapper'
-import { queryProxyByType } from '@main/mapper/proxyMapper'
-import { createHttpClient } from '@main/service/request/client'
-import { requestLogin } from '@main/service/request/requestService'
+import { requestLogin, validateCookie } from '@main/service/request/requestService4Refresh'
 import { updateAllJobs } from '@main/service/schedule'
-
-// 登录检测的请求客户端单例
-const client = await queryProxyByType('post')
-  .then((result) => {
-    if (!result) {
-      return createHttpClient('')
-    } else {
-      return createHttpClient(result.proxyLink)
-    }
-  })
-  .catch(() => {
-    return createHttpClient('')
-  })
 
 const handleQueryUserList = async (): Promise<ResultType<UserInfo[]>> => {
   return queryAllUserInfo()
@@ -45,46 +28,34 @@ const handleQueryUserList = async (): Promise<ResultType<UserInfo[]>> => {
 }
 
 // 用户登录信息
-const handleRequestUserLogin = async (cookie: string): Promise<ResultType<LoginRes>> => {
-  // 等待用户数据入库后返回响应
-  const result = await requestLogin(client, cookie)
-  if (result.code === 0) {
-    return await upsertUserStatus(result.data, cookie)
-      .then(() => result)
-      .catch((error) => {
-        console.log(error)
-        return { code: -2, msg: '用户登录成功但信息存储失败', data: result.data }
-      })
+const handleRequestUserLogin = async (refreshToken: string): Promise<ResultType<LoginRes>> => {
+  const result = await requestLogin(refreshToken)
+  return {
+    code: 0,
+    msg: '用户登录成功',
+    data: result.loginRes
   }
-  return result
 }
 
 // 检查所有用户登录是否过期
 const handleHasAllCookiesExpired = async (): Promise<ResultType<ExpiredAccounts>> => {
   // 查询所有cookie
   const userCookieList = await queryAllCookies()
-
   // 登录结果
   const loginResultList = await Promise.all(
     userCookieList.map((value) => {
       const steamID = value.steamID
       const cookie = value.cookie
-      const loginRes = requestLogin(client, cookie).then((result): LoginRes => {
-        if (result.code === -1) {
-          // 注意：nickname不会被updateAllUserStatus更新
-          return { steamID, loginStatus: 'failed', nickname: '' }
-        } else if (result.code === 1) {
+      const loginRes = validateCookie(cookie)
+        .then((result): LoginRes => {
           return result.data
-        } else {
-          // 网络错误时先置为登录
-          return { steamID, loginStatus: 'succeed', nickname: '' }
-        }
-      })
+        })
+        .catch(() => {
+          return { steamID, loginStatus: 'failed', nickname: '' } as LoginRes
+        })
       return loginRes
     })
   )
-  // 更新数据库
-  updateAllUserStatus(loginResultList).catch()
 
   const expiredAccounts = loginResultList
     .filter((item) => {

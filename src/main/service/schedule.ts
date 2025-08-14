@@ -1,11 +1,8 @@
 import { ToadScheduler, Task, LongIntervalJob } from 'toad-scheduler'
 import { useHttpClientFactory } from '@main/service/request/client'
-import {
-  getOrderList,
-  heartbeat,
-  orderCallbacksFactory
-} from '@main/service/request/requestService'
-import { flattenDeep, uniqueId } from 'lodash-es'
+import { getOrderList, orderCallbacksFactory } from '@main/service/request/requestService'
+import { heartbeat } from '@main/service/request/requestService4Refresh'
+import { debounce, flattenDeep, uniqueId } from 'lodash-es'
 import { getQueryIntreval, setQueryIntreval } from '@main/service/store'
 
 // 任务调度器
@@ -82,6 +79,8 @@ const updateAllJobs = (): void => {
     })
 }
 
+const debounceUpdateAllJobs = debounce(updateAllJobs, 5000)
+
 // 设置调度器任务间隔
 const setScheduleInterval = async (interval: number): Promise<number> => {
   getInterval = interval
@@ -93,6 +92,10 @@ const setScheduleInterval = async (interval: number): Promise<number> => {
 const updateScheduleStatus = (status: boolean): number => {
   schedulerActive = status
   const count = scheduler.getAllJobs().length
+  // 没有任务时创建任务
+  if (!count) {
+    updateAllJobs()
+  }
   schedulerActive ? startAllJobs() : stopAllJobs()
 
   return count
@@ -103,6 +106,7 @@ export {
   startAllJobs,
   stopAllJobs,
   updateAllJobs,
+  debounceUpdateAllJobs,
   setScheduleInterval,
   updateScheduleStatus
 }

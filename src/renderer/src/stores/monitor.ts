@@ -67,7 +67,7 @@ export const useMonitorStore = defineStore('monitor', () => {
   })
   // 实时日志
   window.monitorApi.heartbeatLogs((value) => {
-    logs.push(JSON.stringify(value))
+    logs.push(value as string)
     if (logs.length > 50) {
       logs.shift() // 删除最早的一项
     }
